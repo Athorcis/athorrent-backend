@@ -1,0 +1,11 @@
+
+export CXX=colorgcc
+export CXXFLAGS=-DBOOST_NO_CXX11_SCOPED_ENUMS
+export LDLIBS=-lstdc++ -pthread -lssl -lcrypto /usr/local/lib/libtorrent-rasterbar.a /usr/local/lib/libtorrent-rasterbar.so
+export INSTALLDIR=/var/www/athorrent/bin
+
+default:
+	@$(MAKE) $@
+
+%:
+	@$(MAKE) $@
