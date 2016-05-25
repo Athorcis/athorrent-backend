@@ -7,7 +7,7 @@
 class LocalClientSocket : public virtual LocalSocket, public virtual AbstractClientSocket {
     public:
         LocalClientSocket(HANDLE namedPipe);
-    
+
         ssize_t read(char * buffer, size_t size);
         ssize_t write(const char * buffer, size_t size);
 };

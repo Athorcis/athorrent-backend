@@ -1,32 +1,58 @@
 #include "JsonResponse.h"
 
-JsonResponse::JsonResponse(JSONNODE * node) :
-    m_success(true), m_node(node) {
-    json_set_name(m_node, "data");
+#include <rapidjson/writer.h>
+#include <iostream>
+
+using namespace rapidjson;
+using namespace std;
+
+JsonResponse::JsonResponse()
+{
+    m_doc.SetObject();
+    m_doc.AddMember("status", "", m_doc.GetAllocator());
+    m_doc.AddMember("data", Value(), m_doc.GetAllocator());
 }
 
-JsonResponse::JsonResponse(const char * message, bool success) : m_success(success) {
-    m_node = json_new_a("data", message);
+Document::AllocatorType & JsonResponse::getAllocator()
+{
+    return m_doc.GetAllocator();
 }
 
-bool JsonResponse::isSuccess() const {
-    return m_success;
+string JsonResponse::getStatus() const
+{
+    return m_doc["status"].GetString();
 }
 
-const JSONNODE * JsonResponse::getNode() const {
-    return m_node;
+void JsonResponse::setStatus(const string & status)
+{
+    m_doc["status"].SetString(status, m_doc.GetAllocator());
 }
 
-std::string JsonResponse::toRawResponse() const {
-    JSONNODE * root = json_new(JSON_NODE);
+void JsonResponse::setSuccess(const string & message)
+{
+    setStatus("success");
+    m_doc["data"].SetString(message, m_doc.GetAllocator());
+}
+
+void JsonResponse::setError(const string & message)
+{
+    setStatus("error");
+    m_doc["data"].SetString(message, m_doc.GetAllocator());
+}
+
+Value & JsonResponse::getData()
+{
+    return m_doc["data"];
+}
+
+string JsonResponse::toRawResponse() const {
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    m_doc.Accept(writer);
     
-    json_push_back(root, json_new_a("status", m_success ? "success" : "error"));
-    json_push_back(root, m_node);
+    string message = string(buffer.GetString()) + '\n';
     
-    std::string rawResponse = json_write(root);
-    json_delete(root);
+    cout << message << endl;
     
-    // cout << "Response::toString / result: " << result << endl;
-    
-    return rawResponse + '\n';
+    return message;
 }

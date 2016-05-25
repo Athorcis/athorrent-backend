@@ -9,10 +9,10 @@ class LocalSocket : public virtual AbstractSocket {
         LocalSocket();
         LocalSocket(HANDLE namedPipe);
         ~LocalSocket();
-        
+
         void shutdown();
         void close();
-    
+
     protected:
         HANDLE m_namedPipe;
         HANDLE m_ioThread;

@@ -4,7 +4,7 @@
 class AbstractSocket {
     public:
         virtual ~AbstractSocket() {}
-        
+
         virtual void shutdown() = 0;
         virtual void close() = 0;
 };

@@ -7,6 +7,7 @@
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/create_torrent.hpp>
 #include <libtorrent/alert_types.hpp>
+#include <libtorrent/torrent_info.hpp>
 
 
 #include <fstream>
@@ -20,31 +21,31 @@ TorrentManager::TorrentManager(string userId) :
     if (!boost::filesystem::exists(m_torrentsPath)) {
         boost::filesystem::create_directory(m_torrentsPath);
     }
-    
+
     if (!boost::filesystem::exists(m_filesPath)) {
         boost::filesystem::create_directory(m_filesPath);
     }
-    
+
     addTorrentsFromDirectory(m_torrentsPath);
-    
+
     libtorrent::error_code errorCode;
     m_session.listen_on(make_pair(6881, 6889), errorCode);
-    
+
     boost::thread thread(boost::bind(&TorrentManager::eventLoop, this));
 }
 
 void TorrentManager::eventLoop() {
     libtorrent::time_duration timeout = libtorrent::seconds(60);
-    
+
     m_session.set_alert_mask(libtorrent::alert::status_notification);
-    
+
     while (m_session.wait_for_alert(timeout)) {
         std::auto_ptr<libtorrent::alert> alert = m_session.pop_alert();
-        
+
         switch (alert->type()) {
             case libtorrent::metadata_received_alert::alert_type:
                 libtorrent::torrent_handle torrent = libtorrent::alert_cast<libtorrent::metadata_received_alert>(alert.get())->handle;
-                
+
                 if (torrent.is_valid()) {
                     libtorrent::torrent_info const& ti = torrent.get_torrent_info();
                     libtorrent::create_torrent ct(ti);
@@ -58,7 +59,7 @@ void TorrentManager::eventLoop() {
                         fclose(f);
                     }
                 }
-                
+
                 break;
         }
     }
@@ -86,69 +87,69 @@ vector<libtorrent::torrent_handle> TorrentManager::getTorrents() {
 
 bool TorrentManager::pauseTorrent(string hash) {
     libtorrent::torrent_handle torrent = getTorrent(hash);
-    
+
     if (torrent.is_valid()) {
         torrent.auto_managed(false);
         torrent.pause(libtorrent::torrent_handle::graceful_pause);
     } else {
         return false;
     }
-    
+
     return true;
 }
 
 bool TorrentManager::resumeTorrent(string hash) {
     libtorrent::torrent_handle torrent = getTorrent(hash);
-    
+
     if (torrent.is_valid()) {
         torrent.resume();
         torrent.auto_managed(true);
     } else {
         return false;
     }
-    
+
     return true;
 }
 
 bool TorrentManager::removeTorrent(string hash) {
     libtorrent::torrent_handle torrent = getTorrent(hash);
-    
+
     if (torrent.is_valid()) {
         m_session.remove_torrent(torrent);
         boost::filesystem::remove(m_torrentsPath + "/" + hash + ".torrent");
     } else {
         return false;
     }
-    
+
     return true;
 }
 
 void TorrentManager::loadFastResumeData(string hash, vector<char> & data) {
     string path = "cache/states/" + hash + ".fastresume";
     boost::system::error_code errorCode;
-    
+
     cout << "try loadFastResumeData " << path << endl;
-    
+
     if (boost::filesystem::file_size(path, errorCode) > 0) {
         cout << "loadFastResumeData " << path << endl;
-        
+
         ifstream stream(path.c_str(), ios::binary);
         stream.unsetf(ios::skipws);
         istream_iterator<char> start(stream), end;
-       
+
         data.assign(start, end);
     }
 }
 
 void TorrentManager::saveFastResumeData(string hash, libtorrent::entry & entry) {
     string path = "cache/states/" + hash + ".fastresume";
-    
+
     cout << "saveFastResumeData " << path << endl;
-    
+
     ofstream stream(path.c_str(), ios::binary);
     stream.unsetf(ios::skipws);
     ostream_iterator<char> start(stream);
-    
+
     libtorrent::bencode(start, entry);
 }
 
@@ -157,21 +158,21 @@ void TorrentManager::addTorrentFromFile(string path) {
     libtorrent::error_code errorCode;
     libtorrent::torrent_info * torrentInfo = new libtorrent::torrent_info(path, errorCode);
     libtorrent::sha1_hash hash = torrentInfo->info_hash();
-    
+
     if (!hasTorrent(hash)) {
         string hex = libtorrent::to_hex(hash.to_string());
-        
+
         if (!boost::filesystem::exists(m_torrentsPath + "/" + hex + ".torrent")) {
             boost::filesystem::copy_file(path, m_torrentsPath + "/" + hex + ".torrent");
         }
-        
+
         libtorrent::add_torrent_params parameters;
-    
-        parameters.ti = torrentInfo;
+
+        parameters.ti = boost::shared_ptr<libtorrent::torrent_info>(torrentInfo);
         parameters.save_path = m_filesPath;
-        
+
         // loadFastResumeData(hex, parameters.resume_data);
-        
+
         m_session.add_torrent(parameters, errorCode);
     } else {
         delete torrentInfo;
@@ -180,13 +181,13 @@ void TorrentManager::addTorrentFromFile(string path) {
 
 void TorrentManager::addTorrentFromMagnet(string uri) {
     cout << "loadTorrentFromMagnet " << uri << endl;
-    
+
     libtorrent::error_code errorCode;
     libtorrent::add_torrent_params parameters;
-    
+
     parameters.url = uri;
     parameters.save_path = m_filesPath;
-    
+
     libtorrent::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
 }
 

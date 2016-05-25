@@ -1,23 +1,18 @@
-#ifndef REQUEST_H
-#define REQUEST_H
+#ifndef JSON_REQUEST_H
+#define JSON_REQUEST_H
 
+#include <rapidjson/document.h>
 #include <string>
-#include <map>
 
-class JsonRequest {
+class JsonRequest : protected rapidjson::Document
+{
     public:
-        JsonRequest(std::string action, std::map<std::string, std::string> parameters);
-    
-        const std::string & getAction() const;
-        
+        JsonRequest(const std::string & buffer);
+
+        std::string getAction() const;
+
         bool hasParameter(const std::string & key) const;
-        const std::string & getParameter(const std::string & key) const;
-        
-        static const JsonRequest * parse(const std::string & buffer);
-        
-    private:
-        std::string m_action;
-        std::map<std::string, std::string> m_parameters;
+        std::string getParameter(const std::string & key) const;
 };
 
-#endif // REQUEST_H
+#endif // JSON_REQUEST_H

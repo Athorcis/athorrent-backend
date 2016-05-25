@@ -7,9 +7,9 @@
 class LocalServerSocket : public virtual LocalSocket, public virtual AbstractServerSocket {
     public:
         LocalServerSocket(const std::string & path);
-    
+
         AbstractClientSocket * accept();
-        
+
     private:
         void createNamedPipe();
 };

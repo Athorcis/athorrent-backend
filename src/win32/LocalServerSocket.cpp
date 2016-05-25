@@ -6,15 +6,15 @@ LocalServerSocket::LocalServerSocket(const std::string & path) : AbstractServerS
 
 AbstractClientSocket * LocalServerSocket::accept() {
     LocalClientSocket * clientSocket = NULL;
-    
+
     if (m_namedPipe) {
         if (ConnectNamedPipe(m_namedPipe, NULL)) {
             clientSocket = new LocalClientSocket(m_namedPipe);
         }
-        
+
         createNamedPipe();
     }
-    
+
     return clientSocket;
 }
 

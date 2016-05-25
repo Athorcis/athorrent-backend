@@ -9,17 +9,17 @@
 class AthorrentService : public JsonServer<LocalServerSocket, LocalClientSocket> {
     public:
         AthorrentService(const std::string & address, TorrentManager * torrentManager);
-        
+
         void run();
         void stop();
-        
+
         JsonResponse * handleRequest(const JsonRequest * request);
-        
+
         void setFlag(const std::string & flag);
         void resetFlag(const std::string & flag);
-        
+
         static std::string getPath(const std::string & userId);
-        
+
     private:
         TorrentManager * m_torrentManager;
         std::string m_flagDir;

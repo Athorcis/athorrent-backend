@@ -1,21 +1,27 @@
-#ifndef RESPONSE_H
-#define RESPONSE_H
+#ifndef JSON_RESPONSE_H
+#define JSON_RESPONSE_H
 
-#include <libjson/libjson.h>
+#include <rapidjson/document.h>
 
-class JsonResponse {
+class JsonResponse
+{
     public:
-        JsonResponse(JSONNODE * node);
-        JsonResponse(const char * message, bool success);
-        
-        bool isSuccess() const;      
-        const JSONNODE * getNode() const;
-        
+        JsonResponse();
+
+        rapidjson::Document::AllocatorType & getAllocator();
+
+        std::string getStatus() const;
+        void setStatus(const std::string & status);
+
+        void setSuccess(const std::string & message);
+        void setError(const std::string & message);
+
+        rapidjson::Value & getData();
+
         std::string toRawResponse() const;
-        
+
     private:
-        bool m_success;  
-        JSONNODE * m_node;
+        rapidjson::Document m_doc;
 };
 
-#endif // RESPONSE_H
+#endif // JSON_RESPONSE_H

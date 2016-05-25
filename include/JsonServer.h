@@ -9,19 +9,19 @@ template<typename ServerSocketType, typename ClientSocketType>
 class JsonServer {
     typedef JsonClient<ServerSocketType, ClientSocketType> JsonClientType;
     typedef JsonServer<ServerSocketType, ClientSocketType> JsonServerType;
-    
+
     public:
         JsonServer(const std::string & address);
         virtual ~JsonServer();
-        
+
         void start();
         virtual void run();
         virtual void stop();
-        
+
         void removeClient(JsonClientType * client);
-        
+
         virtual JsonResponse * handleRequest(const JsonRequest * request);
-        
+
     private:
         ServerSocketType * m_serverSocket;
         std::set<JsonClientType *> m_clients;

@@ -20,10 +20,10 @@ void JsonServer<ServerSocketType, ClientSocketType>::start() {
 template<typename ServerSocketType, typename ClientSocketType>
 void JsonServer<ServerSocketType, ClientSocketType>::run() {
     ClientSocketType * clientSocket;
-    
+
     do {
         clientSocket = reinterpret_cast<ClientSocketType *>(m_serverSocket->accept());
-        
+
         if (clientSocket) {
             m_clients.insert(new JsonClientType(this, clientSocket));
         } else {
@@ -35,13 +35,13 @@ void JsonServer<ServerSocketType, ClientSocketType>::run() {
 template<typename ServerSocketType, typename ClientSocketType>
 void JsonServer<ServerSocketType, ClientSocketType>::stop() {
     m_serverSocket->shutdown();
-    
+
     for (JsonClientType * client : m_clients) {
         delete client;
     }
-    
+
     m_clients.clear();
-    
+
     m_serverSocket->close();
     delete m_serverSocket;
 }

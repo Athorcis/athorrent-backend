@@ -8,10 +8,10 @@ class LocalSocket : public virtual AbstractSocket {
         LocalSocket();
         LocalSocket(int socket);
         ~LocalSocket();
-        
+
         void shutdown();
         void close();
-    
+
     protected:
         int m_socket;
 };

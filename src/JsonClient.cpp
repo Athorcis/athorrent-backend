@@ -15,7 +15,7 @@ JsonClient<ServerSocketType, ClientSocketType>::~JsonClient() {
 template<typename ServerSocketType, typename ClientSocketType>
 void JsonClient<ServerSocketType, ClientSocketType>::disconnect() {
     m_clientSocket->shutdown();
-    m_clientSocket->close(); 
+    m_clientSocket->close();
 }
 
 template<typename ServerSocketType, typename ClientSocketType>
@@ -27,19 +27,19 @@ template<typename ServerSocketType, typename ClientSocketType>
 void JsonClient<ServerSocketType, ClientSocketType>::recv() {
     char * buffer = new char[1024];
     std::string rawRequest;
-    
+
     do {
         ssize_t bytesRead = m_clientSocket->read(buffer, 1024);
-        
+
         if (bytesRead > 0) {
             rawRequest.append(buffer, bytesRead);
         } else {
             break;
         }
     } while (rawRequest[rawRequest.size() - 1] != '\n');
-    
+
     if (rawRequest.size()) {
-        handleRequest(JsonRequest::parse(rawRequest));
+        handleRequest(new JsonRequest(rawRequest));
     } else {
         std::cerr << "request not received" << std::endl;
     }
@@ -50,10 +50,10 @@ void JsonClient<ServerSocketType, ClientSocketType>::send(const JsonResponse * r
     std::string rawResponse = response->toRawResponse();
     size_t length = rawResponse.size();
     size_t offset = 0;
-    
+
     while (offset < length) {
         ssize_t bytesWritten = m_clientSocket->write(rawResponse.c_str() + offset, std::min<size_t>(1024, length - offset));
-        
+
         if (bytesWritten > 0) {
             offset += bytesWritten;
         } else {
@@ -64,22 +64,23 @@ void JsonClient<ServerSocketType, ClientSocketType>::send(const JsonResponse * r
 
 template<typename ServerSocketType, typename ClientSocketType>
 void JsonClient<ServerSocketType, ClientSocketType>::handleRequest(const JsonRequest * request) {
-    const JsonResponse * response;
-    
+    JsonResponse * response;
+
     if (request == NULL) {
-        response = new JsonResponse("bad request", false);
+        response = new JsonResponse();
+        response->setError("bad request");
     } else {
         response = m_server->handleRequest(request);
         delete request;
         
-        if (response == NULL) {
-            response = new JsonResponse("not found", false);
+        if (response->getStatus().empty()) {
+            response->setError("not found");
         }
     }
-    
+
     send(response);
     delete response;
-    
+
     disconnect();
     m_server->removeClient(this);
 }
