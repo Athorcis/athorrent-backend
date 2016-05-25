@@ -1,13 +1,19 @@
 
 language: cpp
 
+compiler:
+  - gcc
+
 addons:
     apt:
         packages:
         - libboost-all-dev
         - cmake
+        - gcc-4.8
+        - g++ 4.8
 
 before_install:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - wget https://github.com/arvidn/libtorrent/releases/download/libtorrent-1_1/libtorrent-rasterbar-1.1.0.tar.gz
   - tar -xzvf libtorrent-rasterbar-1.1.0.tar.gz
   - pushd libtorrent-rasterbar-1.1.0
