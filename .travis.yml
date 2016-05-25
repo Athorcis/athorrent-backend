@@ -9,8 +9,8 @@ addons:
         packages:
         - libboost-all-dev
         - cmake
-        - gcc-5
-        - g++-5
+        - gcc-4.8
+        - g++ 4.8
 
 before_install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
