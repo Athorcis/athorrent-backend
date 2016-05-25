@@ -28,8 +28,7 @@ before_install:
   - wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-1.0.2.tar.gz
   - tar -xzvf rapidjson-1.0.2.tar.gz
   - pushd rapidjson-1.0.2
-  - cmake
-  - make
+  - cmake .
   - sudo make install
   - popd
 
