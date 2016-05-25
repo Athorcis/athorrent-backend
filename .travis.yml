@@ -8,9 +8,10 @@ compiler:
   - gcc
 
 addons:
-    sources:
-      - ubuntu-toolchain-r-test
     apt:
+        sources:
+          - ubuntu-toolchain-r-test
+        
         packages:
           - libboost-all-dev
           - cmake
@@ -18,7 +19,7 @@ addons:
           - g++-5
 
 before_install:
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
   - wget https://github.com/arvidn/libtorrent/releases/download/libtorrent-1_1/libtorrent-rasterbar-1.1.0.tar.gz
   - tar -xzvf libtorrent-rasterbar-1.1.0.tar.gz
   - pushd libtorrent-rasterbar-1.1.0
