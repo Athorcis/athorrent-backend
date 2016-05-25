@@ -23,3 +23,6 @@ before_install:
   - make
   - make install
   - popd
+
+after_failure:
+  - cat /home/travis/builds/Athorcis/athorrent-backend/libtorrent-rasterbar-1.1.0/config.log
