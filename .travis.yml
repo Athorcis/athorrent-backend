@@ -16,7 +16,7 @@ addons:
           - g++-5
           - cmake
 
-before_install:
+install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
   - wget https://github.com/arvidn/libtorrent/releases/download/libtorrent-1_1/libtorrent-rasterbar-1.1.0.tar.gz
   - tar -xzvf libtorrent-rasterbar-1.1.0.tar.gz
@@ -32,7 +32,7 @@ before_install:
   - sudo make install
   - popd
 
-install:
+script:
   - ./bootstrap.sh
   - ./configure
   - make
