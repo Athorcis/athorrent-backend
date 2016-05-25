@@ -1,7 +1,7 @@
 
 WARNINGS = -Wall -Wextra -Wno-deprecated-declarations -Wno-unused-parameter
-AM_CPPFLAGS = -I../include $(WARNINGS) -std=c++11 -pedantic
-AM_CXXFLAGS = $(BOOST_CPPFLAGS)
+AM_CPPFLAGS = -I../include $(WARNINGS) -pedantic
+AM_CXXFLAGS = -std=c++11 $(BOOST_CPPFLAGS)
 
 bin_PROGRAMS = athorrent-backend
 athorrent_backend_SOURCES = main.cpp TorrentManager.cpp Utils.cpp LocalSocket.cpp LocalServerSocket.cpp LocalClientSocket.cpp AthorrentService.cpp JsonRequest.cpp JsonResponse.cpp

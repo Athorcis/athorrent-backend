@@ -21,7 +21,7 @@ before_install:
   - wget https://github.com/arvidn/libtorrent/releases/download/libtorrent-1_1/libtorrent-rasterbar-1.1.0.tar.gz
   - tar -xzvf libtorrent-rasterbar-1.1.0.tar.gz
   - pushd libtorrent-rasterbar-1.1.0
-  - ./configure CPPFLAGS="-std=c++11"
+  - ./configure CPPFLAGS="-DTORRENT_EXPORT_EXTRA" CXXFLAGS="-std=c++11"
   - make
   - sudo make install
   - popd
