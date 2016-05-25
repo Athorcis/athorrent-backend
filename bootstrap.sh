@@ -6,7 +6,7 @@ rm -rf aclocal.m4 autom4te.cache build-aux m4/libtool.m4 m4/lt* \
 
 mkdir build-aux
 
-aclocal
+aclocal -I m4
 libtoolize --copy
 automake --add-missing --copy
 autoconf

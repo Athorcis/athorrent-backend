@@ -15,7 +15,6 @@ AC_PROG_CXX
 AS_ECHO
 AS_ECHO "Initializing Automake:"
 AM_INIT_AUTOMAKE([-Wall no-define foreign])
-#AM_CONDITIONAL([MINGW], [test $build_os = mingw64])
 
 AS_ECHO
 AS_ECHO "Initializing Libtool:"
