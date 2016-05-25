@@ -33,6 +33,9 @@ before_install:
   - popd
 
 install:
+  - autoconf --version
+  - automake --version
   - ./bootstrap.sh
+  - autoconf -v
   - ./configure
   - make
