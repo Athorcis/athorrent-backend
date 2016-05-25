@@ -8,12 +8,14 @@ compiler:
   - gcc
 
 addons:
+    sources:
+      - ubuntu-toolchain-r-test
     apt:
         packages:
-        - libboost-all-dev
-        - cmake
-        - gcc-5
-        - g++-5
+          - libboost-all-dev
+          - cmake
+          - gcc-5
+          - g++-5
 
 before_install:
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
