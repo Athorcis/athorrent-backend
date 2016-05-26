@@ -59,14 +59,17 @@ AS_IF([test -z "$BOOST_LOCALE_LIB"],
 
 AS_ECHO
 AS_ECHO "Checking for libtorrent:"
+CPPFLAGS_SAVED="$CPPFLAGS"
+CPPFLAGS="-std=c++11 $CPPFLAGS"
 AC_CHECK_HEADER([libtorrent/session_handle.hpp], [], [
     AC_MSG_ERROR(["libtorrent library not found"])
 ])
+CPPFLAGS="$CPPFLAGS_SAVED"
 
 AS_ECHO
 AS_ECHO "Checking for rapidjson:"
 AC_CHECK_HEADER([rapidjson/rapidjson.h], [
-    AC_DEFINE(RAPIDJSON_HAS_STDSTRING)
+    AC_DEFINE([RAPIDJSON_HAS_STDSTRING])
 ], [
     AC_MSG_ERROR(["rapidjson library not found"])
 ])
