@@ -142,7 +142,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
         for (libtorrent::torrent_handle torrent : torrents) {
             libtorrent::torrent_status status = torrent.status(libtorrent::torrent_handle::query_save_path | libtorrent::torrent_handle::query_name);
 
-            data.PushBack(Value((status.save_path + '/' + Utils::fromUtf8(status.name)).c_str(), allocator).Move(), allocator);
+            data.PushBack(Value(status.save_path + '/' + Utils::fromUtf8(status.name), allocator).Move(), allocator);
         }
         
         response->setStatus("success");
@@ -161,10 +161,10 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                     Value trackerVal;
                     trackerVal.SetObject();
                     
-                    trackerVal.AddMember("id", Value(tracker.trackerid.c_str(), allocator).Move(), allocator);
-                    trackerVal.AddMember("url", Value(tracker.url.c_str(), allocator).Move(), allocator);
+                    trackerVal.AddMember("id", Value(tracker.trackerid, allocator).Move(), allocator);
+                    trackerVal.AddMember("url", Value(tracker.url, allocator).Move(), allocator);
                     trackerVal.AddMember("peers", tracker.scrape_complete + tracker.scrape_incomplete, allocator);
-                    trackerVal.AddMember("message", Value(tracker.message.c_str(), allocator).Move(), allocator);
+                    trackerVal.AddMember("message", Value(tracker.message, allocator).Move(), allocator);
 
                     data.PushBack(trackerVal, allocator);
                 }
