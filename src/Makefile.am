@@ -1,6 +1,6 @@
 
 WARNINGS = -Wall -Wextra -Wno-deprecated-declarations -Wno-unused-parameter
-AM_CPPFLAGS = -I../include $(WARNINGS) -pedantic
+AM_CPPFLAGS = -I../include $(WARNINGS) -pedantic -DBOOST_NO_CXX11_SCOPED_ENUMS
 AM_CXXFLAGS = -std=c++11 $(BOOST_CPPFLAGS)
 
 bin_PROGRAMS = athorrent-backend
@@ -10,6 +10,4 @@ athorrent_backend_LDADD = -ltorrent-rasterbar @BOOST_SYSTEM_LIB@ @BOOST_PROGRAM_
 if WINDOWS
     AM_CPPFLAGS += -D_WIN32_WINNT=0x0600
     athorrent_backend_LDADD += -lwsock32
-else
-    AM_CPPFLAGS += -DBOOST_NO_CXX11_SCOPED_ENUMS
 endif

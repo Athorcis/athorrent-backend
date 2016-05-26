@@ -40,27 +40,31 @@ void TorrentManager::eventLoop() {
     m_session.set_alert_mask(libtorrent::alert::status_notification);
 
     while (m_session.wait_for_alert(timeout)) {
-        std::auto_ptr<libtorrent::alert> alert = m_session.pop_alert();
+        std::vector<libtorrent::alert *> alerts;
+        
+        m_session.pop_alerts(&alerts);
+        
+        for (auto alert : alerts) {
+            switch (alert->type()) {
+                case libtorrent::metadata_received_alert::alert_type:
+                    libtorrent::torrent_handle torrent = libtorrent::alert_cast<libtorrent::metadata_received_alert>(alert)->handle;
 
-        switch (alert->type()) {
-            case libtorrent::metadata_received_alert::alert_type:
-                libtorrent::torrent_handle torrent = libtorrent::alert_cast<libtorrent::metadata_received_alert>(alert.get())->handle;
+                    if (torrent.is_valid()) {
+                        libtorrent::torrent_info const& ti = torrent.get_torrent_info();
+                        libtorrent::create_torrent ct(ti);
+                        libtorrent::entry te = ct.generate();
+                        std::vector<char> buffer;
+                        libtorrent::bencode(std::back_inserter(buffer), te);
 
-                if (torrent.is_valid()) {
-                    libtorrent::torrent_info const& ti = torrent.get_torrent_info();
-                    libtorrent::create_torrent ct(ti);
-                    libtorrent::entry te = ct.generate();
-                    std::vector<char> buffer;
-                    libtorrent::bencode(std::back_inserter(buffer), te);
-
-                    FILE* f = fopen((m_torrentsPath + "/" + libtorrent::to_hex(ti.info_hash().to_string()) + ".torrent").c_str(), "wb+");
-                    if (f) {
-                        fwrite(&buffer[0], 1, buffer.size(), f);
-                        fclose(f);
+                        FILE* f = fopen((m_torrentsPath + "/" + libtorrent::to_hex(ti.info_hash().to_string()) + ".torrent").c_str(), "wb+");
+                        if (f) {
+                            fwrite(&buffer[0], 1, buffer.size(), f);
+                            fclose(f);
+                        }
                     }
-                }
 
-                break;
+                    break;
+            }
         }
     }
 }
