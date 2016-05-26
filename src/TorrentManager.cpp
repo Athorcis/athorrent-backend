@@ -8,6 +8,7 @@
 #include <libtorrent/create_torrent.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/torrent_info.hpp>
+#include <libtorrent/settings_pack.hpp>
 
 
 #include <fstream>
@@ -28,16 +29,17 @@ TorrentManager::TorrentManager(string userId) :
 
     addTorrentsFromDirectory(m_torrentsPath);
 
-    libtorrent::error_code errorCode;
-    m_session.listen_on(make_pair(6881, 6889), errorCode);
+    libtorrent::settings_pack settings;
+    settings.set_str(libtorrent::settings_pack::listen_interfaces, "0.0.0.0:6881");
+    settings.set_int(libtorrent::settings_pack::alert_mask, libtorrent::alert::status_notification);
+
+    m_session.apply_settings(settings);
 
     boost::thread thread(boost::bind(&TorrentManager::eventLoop, this));
 }
 
 void TorrentManager::eventLoop() {
     libtorrent::time_duration timeout = libtorrent::seconds(60);
-
-    m_session.set_alert_mask(libtorrent::alert::status_notification);
 
     while (m_session.wait_for_alert(timeout)) {
         std::vector<libtorrent::alert *> alerts;
@@ -50,13 +52,13 @@ void TorrentManager::eventLoop() {
                     libtorrent::torrent_handle torrent = libtorrent::alert_cast<libtorrent::metadata_received_alert>(alert)->handle;
 
                     if (torrent.is_valid()) {
-                        libtorrent::torrent_info const& ti = torrent.get_torrent_info();
-                        libtorrent::create_torrent ct(ti);
+                        boost::shared_ptr<const libtorrent::torrent_info> ti = torrent.torrent_file();
+                        libtorrent::create_torrent ct(*ti);
                         libtorrent::entry te = ct.generate();
                         std::vector<char> buffer;
                         libtorrent::bencode(std::back_inserter(buffer), te);
 
-                        FILE* f = fopen((m_torrentsPath + "/" + libtorrent::to_hex(ti.info_hash().to_string()) + ".torrent").c_str(), "wb+");
+                        FILE* f = fopen((m_torrentsPath + "/" + libtorrent::to_hex(ti->info_hash().to_string()) + ".torrent").c_str(), "wb+");
                         if (f) {
                             fwrite(&buffer[0], 1, buffer.size(), f);
                             fclose(f);

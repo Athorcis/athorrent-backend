@@ -94,8 +94,6 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
 
             if (status.paused) {
                 torrentVal.AddMember("state", "paused", allocator);
-            } else if (status.state == libtorrent::torrent_status::queued_for_checking) {
-                torrentVal.AddMember("state", "queued_for_checking", allocator);
             } else if (status.state == libtorrent::torrent_status::checking_files) {
                 torrentVal.AddMember("state", "cheking_files", allocator);
             } else if (status.state == libtorrent::torrent_status::downloading_metadata) {
@@ -154,8 +152,8 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             libtorrent::torrent_handle torrent_handle = m_torrentManager->getTorrent(request->getParameter("hash"));
 
             if (torrent_handle.is_valid()) {
-                libtorrent::torrent_info torrent_info = torrent_handle.get_torrent_info();
-                std::vector<libtorrent::announce_entry> trackers = torrent_info.trackers();
+                boost::shared_ptr<const libtorrent::torrent_info> torrent_info = torrent_handle.torrent_file();
+                std::vector<libtorrent::announce_entry> trackers = torrent_info->trackers();
 
                 for (libtorrent::announce_entry tracker : trackers) {
                     Value trackerVal;
