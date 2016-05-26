@@ -9,5 +9,5 @@ athorrent_backend_LDADD = -ltorrent-rasterbar @BOOST_SYSTEM_LIB@ @BOOST_PROGRAM_
 
 if WINDOWS
     AM_CPPFLAGS += -D_WIN32_WINNT=0x0600
-    athorrent_backend_LDADD += -lwsock32
+    athorrent_backend_LDADD += -lwsock32 -lws2_32
 endif
