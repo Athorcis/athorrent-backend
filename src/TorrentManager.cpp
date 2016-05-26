@@ -9,6 +9,7 @@
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/torrent_info.hpp>
 #include <libtorrent/settings_pack.hpp>
+#include <libtorrent/error_code.hpp>
 
 
 #include <fstream>
@@ -159,7 +160,7 @@ void TorrentManager::saveFastResumeData(string hash, libtorrent::entry & entry) 
     libtorrent::bencode(start, entry);
 }
 
-void TorrentManager::addTorrentFromFile(string path) {
+string TorrentManager::addTorrentFromFile(string path) {
     cout << "loadTorrentFromFile " << path << endl;
     libtorrent::error_code errorCode;
     libtorrent::torrent_info * torrentInfo = new libtorrent::torrent_info(path, errorCode);
@@ -180,12 +181,16 @@ void TorrentManager::addTorrentFromFile(string path) {
         // loadFastResumeData(hex, parameters.resume_data);
 
         m_session.add_torrent(parameters, errorCode);
+        
+        return hex;
     } else {
         delete torrentInfo;
     }
+    
+    return string();
 }
 
-void TorrentManager::addTorrentFromMagnet(string uri) {
+string TorrentManager::addTorrentFromMagnet(string uri) {
     cout << "loadTorrentFromMagnet " << uri << endl;
 
     libtorrent::error_code errorCode;
@@ -193,8 +198,17 @@ void TorrentManager::addTorrentFromMagnet(string uri) {
 
     parameters.url = uri;
     parameters.save_path = m_filesPath;
-
-    libtorrent::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
+    parameters.flags = libtorrent::add_torrent_params::default_flags | libtorrent::add_torrent_params::flag_duplicate_is_error;
+    
+    try {
+        libtorrent::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
+        
+        return libtorrent::to_hex(torrentHandle.info_hash().to_string());
+    } catch (std::exception except) {
+        
+    }
+    
+    return string();
 }
 
 void TorrentManager::addTorrentsFromDirectory(string path) {

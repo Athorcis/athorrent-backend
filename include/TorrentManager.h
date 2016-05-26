@@ -28,10 +28,10 @@ class TorrentManager {
         void loadFastResumeData(std::string hash, std::vector<char> & data);
         void saveFastResumeData(std::string hash, libtorrent::entry & entry);
 
-        void addTorrentFromFile(std::string path);
+        std::string addTorrentFromFile(std::string path);
         void addTorrentsFromDirectory(std::string path);
 
-        void addTorrentFromMagnet(std::string uri);
+        std::string addTorrentFromMagnet(std::string uri);
 
     private:
         std::string m_userId;

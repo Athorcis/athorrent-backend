@@ -44,29 +44,35 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             std::string file = request->getParameter("file");
 
             if (boost::filesystem::exists(file)) {
-                m_torrentManager->addTorrentFromFile(file);
-                response->setSuccess("torrent added");
+                std::string hash = m_torrentManager->addTorrentFromFile(file);
+                
+                if (!hash.empty()) {
+                    Value & data = response->getData();
+                    data.SetObject();
+                    
+                    data.AddMember("hash", Value(hash, allocator).Move(), allocator);
+                    response->setStatus("success");
+                }
             }
         }
     } else if (action == "addTorrentFromMagnet") {
         if (request->hasParameter("magnet")) {
             std::string magnet = request->getParameter("magnet");
+            std::string hash = m_torrentManager->addTorrentFromMagnet(magnet);
+            
+            if (!hash.empty()) {
+                Value & data = response->getData();
+                data.SetObject();
 
-            m_torrentManager->addTorrentFromMagnet(magnet);
-            response->setSuccess("magnet added");
+                data.AddMember("hash", Value(hash, allocator).Move(), allocator);
+                response->setStatus("success");
+            }
         }
     } else if (action == "pauseTorrent") {
-        std::cout << "BP1" << std::endl;
-
         if (request->hasParameter("hash")) {
-            std::cout << "hash: " << request->getParameter("hash") << std::endl;
-
             if (m_torrentManager->pauseTorrent(request->getParameter("hash"))) {
                 response->setSuccess("torrent paused");
             }
-        } else {
-            std::cout << "BP2" << std::endl;
-
         }
     } else if (action == "resumeTorrent") {
         if (request->hasParameter("hash")) {
