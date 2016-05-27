@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include <boost/asio/placeholders.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -27,8 +28,8 @@ int main(int argc, char * argv[]) {
     
     std::string userId = vm["user"].as<std::string>();
     
-    if (!boost::filesystem::exists("torrents")) {
-        boost::filesystem::create_directory("torrents");
+    if (!boost::filesystem::exists("cache")) {
+        boost::filesystem::create_directory("cache");
     }
     
     if (!boost::filesystem::exists("files")) {
@@ -40,14 +41,34 @@ int main(int argc, char * argv[]) {
     
     boost::asio::io_service ioService;
     
+    std::function<void(
+        const boost::system::error_code &,
+        boost::asio::deadline_timer *,
+        TorrentManager *)> requestSaveResumeDataPeriodically = [&](const boost::system::error_code & error, boost::asio::deadline_timer * t, TorrentManager * torrentManager) {
+        torrentManager->requestSaveResumeData();
+        t->expires_at(t->expires_at() + boost::posix_time::seconds(5));
+        t->async_wait(boost::bind(requestSaveResumeDataPeriodically,
+          boost::asio::placeholders::error, t, torrentManager));
+    };
+    
+    boost::asio::deadline_timer t(ioService, boost::posix_time::minutes(5));
+    t.async_wait(boost::bind(requestSaveResumeDataPeriodically,
+          boost::asio::placeholders::error, &t, &torrentManager));
+    
     boost::asio::signal_set signals(ioService, SIGINT, SIGTERM);
 
-    signals.async_wait([&service](const boost::system::error_code & error, int signal_number) {
+    signals.async_wait([&service, &torrentManager](const boost::system::error_code & error, int signal_number) {
         if (signal_number == SIGINT) {
             std::cout << "caught SIGINT" << std::endl;
         } else if (signal_number == SIGTERM) {
             std::cout << "caught SIGTERM" << std::endl;
         }
+        
+        if (!torrentManager.isGlobalSaveResumeDataPending()) {
+            torrentManager.requestSaveResumeData();
+        }
+        
+        torrentManager.waitForSaveResumeData();
         
         service.stop();
         exit(EXIT_SUCCESS);

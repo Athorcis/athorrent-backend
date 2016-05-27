@@ -18,39 +18,65 @@ using namespace std;
 
 TorrentManager::TorrentManager(string userId) :
     m_userId(userId),
-    m_torrentsPath("torrents/" + m_userId),
-    m_filesPath("files/" + m_userId) {
+    m_torrentsPath("cache/" + m_userId + "/torrents"),
+    m_resumeDataPath("cache/" + m_userId + "/fastresume"),
+    m_filesPath("files/" + m_userId),
+    m_requestedSaveResumeData(0) {
     if (!boost::filesystem::exists(m_torrentsPath)) {
         boost::filesystem::create_directory(m_torrentsPath);
+    }
+
+    if (!boost::filesystem::exists(m_resumeDataPath)) {
+        boost::filesystem::create_directory(m_resumeDataPath);
     }
 
     if (!boost::filesystem::exists(m_filesPath)) {
         boost::filesystem::create_directory(m_filesPath);
     }
 
-    addTorrentsFromDirectory(m_torrentsPath);
-
     libtorrent::settings_pack settings;
-    settings.set_str(libtorrent::settings_pack::listen_interfaces, "0.0.0.0:6881");
-    settings.set_int(libtorrent::settings_pack::alert_mask, libtorrent::alert::status_notification);
+    settings.set_int(libtorrent::settings_pack::alert_mask, libtorrent::alert::status_notification  | libtorrent::alert::storage_notification | libtorrent::alert::error_notification);
 
     m_session.apply_settings(settings);
 
     boost::thread thread(boost::bind(&TorrentManager::eventLoop, this));
+    
+    addTorrentsFromDirectory(m_torrentsPath);
 }
 
 void TorrentManager::eventLoop() {
-    libtorrent::time_duration timeout = libtorrent::seconds(60);
-
-    while (m_session.wait_for_alert(timeout)) {
+    libtorrent::time_duration timeout = libtorrent::seconds(15);
+    libtorrent::torrent_handle torrent;
+    boost::thread thread;
+    
+    while (true) {
+        m_session.wait_for_alert(timeout);
+        
         std::vector<libtorrent::alert *> alerts;
         
         m_session.pop_alerts(&alerts);
         
         for (auto alert : alerts) {
             switch (alert->type()) {
+                case libtorrent::save_resume_data_alert::alert_type:
+                    handleSaveResumeDataAlert(libtorrent::alert_cast<libtorrent::save_resume_data_alert>(alert));
+                    break;
+
+                case libtorrent::torrent_finished_alert::alert_type:
+                    torrent = libtorrent::alert_cast<libtorrent::torrent_finished_alert>(alert)->handle;
+                    std::cout << "torrent finished" << std::endl;
+                   thread = boost::thread(boost::bind(&TorrentManager::requestSaveResumeData, this), torrent);
+                    break;
+                    
+                case libtorrent::save_resume_data_failed_alert::alert_type:
+                    break;
+                
+                case libtorrent::fastresume_rejected_alert::alert_type:
+                    std::cout << "fast resume data rejected" << std::endl;
+                    break;
+
                 case libtorrent::metadata_received_alert::alert_type:
-                    libtorrent::torrent_handle torrent = libtorrent::alert_cast<libtorrent::metadata_received_alert>(alert)->handle;
+                    torrent = libtorrent::alert_cast<libtorrent::metadata_received_alert>(alert)->handle;
 
                     if (torrent.is_valid()) {
                         boost::shared_ptr<const libtorrent::torrent_info> ti = torrent.torrent_file();
@@ -68,6 +94,101 @@ void TorrentManager::eventLoop() {
 
                     break;
             }
+        }
+    }
+}
+
+void TorrentManager::requestSaveResumeData() {
+    waitForSaveResumeData();
+    
+    std::cout << "start global save resume data" << endl;
+    bool atLeastOneRequest = false;
+    m_globalSaveResumeDataPending = true;
+    
+    std::vector<libtorrent::torrent_handle> handles = m_session.get_torrents();
+    m_session.pause();
+
+    for (std::vector<libtorrent::torrent_handle>::iterator i = handles.begin(); i != handles.end(); ++i) {
+        libtorrent::torrent_handle& h = *i;
+
+        if (!h.is_valid()) {
+            continue;
+        }
+
+        libtorrent::torrent_status s = h.status();
+
+        if (!s.has_metadata) {
+            continue;
+        }
+
+        if (requestSaveResumeData(h, true)) {
+            atLeastOneRequest = true;
+        }
+    }
+    
+    m_globalSaveResumeDataPending = false;
+    
+    if (!atLeastOneRequest) {
+        m_resumeDataCondition.notify_one();
+    }
+}
+
+bool TorrentManager::isGlobalSaveResumeDataPending() const
+{
+    return m_globalSaveResumeDataPending;
+}
+
+void TorrentManager::waitForSaveResumeData()
+{
+    if (m_requestedSaveResumeData > 0) {
+        std::cout << "wait for save resume data" << endl;
+        boost::mutex::scoped_lock lock(m_resumeDataMutex);
+        m_resumeDataCondition.wait(lock);
+        std::cout << "wait is over" << endl;
+    }
+}
+
+bool TorrentManager::requestSaveResumeData(libtorrent::torrent_handle handle, bool global) {
+    if (!global) {
+        waitForSaveResumeData();
+        std::cout << "start save resume data" << endl;
+    }
+    
+    if (handle.need_save_resume_data()) {
+        std::cout << "torrent need save resume data" << std::endl;
+        handle.save_resume_data(libtorrent::torrent_handle::flush_disk_cache | libtorrent::torrent_handle::save_info_dict);
+        ++m_requestedSaveResumeData;
+        
+        return true;
+    } else if (!global) {
+        std::cout << "notifying one" << std::endl;
+        m_resumeDataCondition.notify_one();
+    }
+    
+    return false;
+}
+
+void TorrentManager::handleSaveResumeDataAlert(libtorrent::save_resume_data_alert * alert) {
+    std::cout << "save resume data" << std::endl;
+    
+    libtorrent::torrent_handle handle = alert->handle;
+    string hash = libtorrent::to_hex(handle.info_hash().to_string());
+    boost::shared_ptr<libtorrent::entry> resume_data = alert->resume_data;
+
+    string path = "cache/" + m_userId + "/fastresume/"+ hash + ".fastresume";
+
+    ofstream stream(path.c_str(), ios::binary);
+    stream.unsetf(ios::skipws);
+    ostream_iterator<char> start(stream);
+
+    libtorrent::bencode(start, *resume_data);
+
+    if (m_requestedSaveResumeData > 0) {
+        --m_requestedSaveResumeData;
+
+        if (m_requestedSaveResumeData == 0) {
+            std::cout << "notifying one" << std::endl;
+            m_resumeDataCondition.notify_one();
         }
     }
 }
@@ -124,6 +245,7 @@ bool TorrentManager::removeTorrent(string hash) {
     if (torrent.is_valid()) {
         m_session.remove_torrent(torrent);
         boost::filesystem::remove(m_torrentsPath + "/" + hash + ".torrent");
+        boost::filesystem::remove(m_resumeDataPath + "/" + hash + ".fastresume");
     } else {
         return false;
     }
@@ -132,35 +254,27 @@ bool TorrentManager::removeTorrent(string hash) {
 }
 
 void TorrentManager::loadFastResumeData(string hash, vector<char> & data) {
-    string path = "cache/states/" + hash + ".fastresume";
+    string path = m_resumeDataPath + "/" + hash + ".fastresume";
     boost::system::error_code errorCode;
 
     cout << "try loadFastResumeData " << path << endl;
 
-    if (boost::filesystem::file_size(path, errorCode) > 0) {
-        cout << "loadFastResumeData " << path << endl;
+    try {
+        if (boost::filesystem::file_size(path) > 0) {
+            cout << "loadFastResumeData " << path << endl;
 
-        ifstream stream(path.c_str(), ios::binary);
-        stream.unsetf(ios::skipws);
-        istream_iterator<char> start(stream), end;
+            ifstream stream(path.c_str(), ios::binary);
+            stream.unsetf(ios::skipws);
+            istream_iterator<char> start(stream), end;
 
-        data.assign(start, end);
+            data.assign(start, end);
+        }
+    } catch (std::exception except) {
+        cerr << "failed to load fastresume data" << endl;
     }
 }
 
-void TorrentManager::saveFastResumeData(string hash, libtorrent::entry & entry) {
-    string path = "cache/states/" + hash + ".fastresume";
-
-    cout << "saveFastResumeData " << path << endl;
-
-    ofstream stream(path.c_str(), ios::binary);
-    stream.unsetf(ios::skipws);
-    ostream_iterator<char> start(stream);
-
-    libtorrent::bencode(start, entry);
-}
-
-string TorrentManager::addTorrentFromFile(string path) {
+string TorrentManager::addTorrentFromFile(string path, bool resumeData) {
     cout << "loadTorrentFromFile " << path << endl;
     libtorrent::error_code errorCode;
     libtorrent::torrent_info * torrentInfo = new libtorrent::torrent_info(path, errorCode);
@@ -178,8 +292,10 @@ string TorrentManager::addTorrentFromFile(string path) {
         parameters.ti = boost::shared_ptr<libtorrent::torrent_info>(torrentInfo);
         parameters.save_path = m_filesPath;
 
-        // loadFastResumeData(hex, parameters.resume_data);
-
+        if (resumeData) {
+            loadFastResumeData(hex, parameters.resume_data);
+        }
+        
         m_session.add_torrent(parameters, errorCode);
         
         return hex;
@@ -213,6 +329,6 @@ string TorrentManager::addTorrentFromMagnet(string uri) {
 
 void TorrentManager::addTorrentsFromDirectory(string path) {
     for (boost::filesystem::directory_iterator iterator(path), end; iterator != end; ++iterator) {
-        addTorrentFromFile(iterator->path().string());
+        addTorrentFromFile(iterator->path().string(), true);
     }
 }
