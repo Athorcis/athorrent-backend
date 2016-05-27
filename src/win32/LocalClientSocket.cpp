@@ -4,31 +4,40 @@ LocalClientSocket::LocalClientSocket(HANDLE namedPipe) : LocalSocket(namedPipe) 
 }
 
 ssize_t LocalClientSocket::read(char * buffer, size_t size) {
-    ssize_t bytesRead;
+    DWORD bytesRead;
+    ssize_t result;
 
     m_ioThread = GetCurrentThread();
 
-    if (!ReadFile(m_namedPipe, buffer, size, reinterpret_cast<LPDWORD>(&bytesRead), NULL)) {
-        bytesRead = -1;
+    if (ReadFile(m_namedPipe, buffer, size, &bytesRead, NULL)) {
+        result = bytesRead;
+    } else {
+        result = -1;
     }
 
     m_ioThread = NULL;
 
-    return bytesRead;
+    return result;
 }
 
 ssize_t LocalClientSocket::write(const char * buffer, size_t size) {
-    ssize_t bytesWritten;
+    DWORD bytesWritten;
+    ssize_t result;
 
     m_ioThread = GetCurrentThread();
 
-    if (WriteFile(m_namedPipe, buffer, size, reinterpret_cast<LPDWORD>(&bytesWritten), NULL)) {
-        FlushFileBuffers(m_namedPipe);
+    if (WriteFile(m_namedPipe, buffer, size, &bytesWritten, NULL)) {
+        result = bytesWritten;
     } else {
-        bytesWritten = -1;
+        result = -1;
     }
 
     m_ioThread = NULL;
 
-    return bytesWritten;
+    return result;
+}
+
+void LocalClientSocket::flush()
+{
+    FlushFileBuffers(m_namedPipe);
 }

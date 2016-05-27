@@ -55,13 +55,13 @@ void JsonClient<ServerSocketType, ClientSocketType>::send(const JsonResponse * r
         ssize_t bytesWritten = m_clientSocket->write(rawResponse.c_str() + offset, std::min<size_t>(1024, length - offset));
 
         if (bytesWritten > 0) {
-            std::cout << "+1" << std::endl;
             offset += bytesWritten;
         } else {
-            std::cout << "break out" << std::endl;
             break;
         }
     }
+
+    m_clientSocket->flush();
 }
 
 template<typename ServerSocketType, typename ClientSocketType>
