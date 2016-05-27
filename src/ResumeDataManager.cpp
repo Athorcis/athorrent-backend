@@ -32,7 +32,7 @@ void ResumeDataManager::stop()
     if (!hasGlobalSaveResumeDataPending()) {
         requestGlobalSaveResumeData();
     }
-    
+
     waitForSaveResumeDataEnd();
 }
 
@@ -40,7 +40,7 @@ void ResumeDataManager::requestGlobalSaveResumeData()
 {
     waitForSaveResumeDataEnd();
     m_globalSaveResumeDataPending = true;
-    
+
     std::vector<lt::torrent_handle> handles = m_session.get_torrents();
     m_session.pause();
 
@@ -60,14 +60,14 @@ void ResumeDataManager::requestGlobalSaveResumeData()
             handle.save_resume_data(lt::torrent_handle::flush_disk_cache | lt::torrent_handle::save_info_dict);
         }
     }
-    
+
     tryReleaseLock();
 }
 
 void ResumeDataManager::requestSaveResumeData(lt::torrent_handle & handle)
 {
     waitForSaveResumeDataEnd();
-    
+
     if (handle.need_save_resume_data()) {
         ++m_saveResumeDataPending;
         handle.save_resume_data(lt::torrent_handle::flush_disk_cache | lt::torrent_handle::save_info_dict);
@@ -84,7 +84,7 @@ void ResumeDataManager::loadResumeData(const string & hash, vector<char> & data)
         if (fs::file_size(path) > 0) {
             ifstream file(path.c_str(), ifstream::in | ifstream::binary);
             file.unsetf(ios::skipws);
-            
+
             istream_iterator<char> start(file), end;
             data.assign(start, end);
         }
@@ -97,7 +97,7 @@ void ResumeDataManager::saveResumeData(lt::torrent_handle & handle, boost::share
 {
     string hash = lt::to_hex(handle.info_hash().to_string());
     string path = m_torrentManager.getResumeDataPath() + '/' + hash + ".fastresume";
-    
+
     m_torrentManager.writeBencodedTree(path, *resumeData);
 
     if (hasSaveResumeDataPending()) {
@@ -130,7 +130,7 @@ void ResumeDataManager::tryReleaseLock()
         if (hasGlobalSaveResumeDataPending()) {
             m_globalSaveResumeDataPending = false;
         }
-        
+
         m_resumeDataCondition.notify_one();
     }
 }

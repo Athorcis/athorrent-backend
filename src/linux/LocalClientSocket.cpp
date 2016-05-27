@@ -1,6 +1,7 @@
 #include "linux/LocalClientSocket.h"
 
 #include <unistd.h>
+#include <cstdio>
 
 LocalClientSocket::LocalClientSocket(int socket) : LocalSocket(socket) {
 }
