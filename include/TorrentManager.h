@@ -2,28 +2,27 @@
 #define TORRENT_MANAGER_H
 
 #include <libtorrent/session.hpp>
-#include <libtorrent/alert_types.hpp>
-
-#include <boost/thread/condition_variable.hpp>
-#include <boost/thread/mutex.hpp>
 
 #include <string>
 #include <vector>
+
+class AlertManager;
+class ResumeDataManager;
 
 class TorrentManager
 {
     public:
         TorrentManager(std::string userId);
+    
+        void createTorrent(libtorrent::torrent_handle & handle);
 
-        void eventLoop();
-
-        void requestSaveResumeData();
-        bool requestSaveResumeData(libtorrent::torrent_handle handle, bool global = false);
-        void handleSaveResumeDataAlert(libtorrent::save_resume_data_alert * alert);
+        libtorrent::session & getSession();
+        ResumeDataManager & getResumeDataManager();
         
-        bool isGlobalSaveResumeDataPending() const;
-        void waitForSaveResumeData();
-        
+        const std::string & getResumeDataPath() const;
+    
+        void writeBencodedTree(const std::string & path, const libtorrent::entry & entry);
+    
         bool hasTorrent(libtorrent::sha1_hash hash);
         bool hasTorrent(std::string hash);
 
@@ -37,9 +36,6 @@ class TorrentManager
 
         bool removeTorrent(std::string hash);
 
-        void loadFastResumeData(std::string hash, std::vector<char> & data);
-        void saveFastResumeData(std::string hash, libtorrent::entry & entry);
-
         std::string addTorrentFromFile(std::string path, bool resumeData = false);
         void addTorrentsFromDirectory(std::string path);
 
@@ -51,13 +47,11 @@ class TorrentManager
         std::string m_torrentsPath;
         std::string m_resumeDataPath;
         std::string m_filesPath;
-        boost::mutex m_resumeDataMutex;
-        boost::condition_variable m_resumeDataCondition;
-        
-        int m_requestedSaveResumeData;
-        bool m_globalSaveResumeDataPending;
     
         libtorrent::session m_session;
+    
+        ResumeDataManager * m_resumeDataManager;
+        AlertManager * m_alertManager;
 };
 
 #endif /* TORRENT_MANAGER_H */

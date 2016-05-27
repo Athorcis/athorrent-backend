@@ -10,6 +10,7 @@
 
 #include "AthorrentService.h"
 #include "TorrentManager.h"
+#include "ResumeDataManager.h"
 
 int main(int argc, char * argv[]) {
     boost::program_options::options_description desc("Allowed options");
@@ -41,19 +42,7 @@ int main(int argc, char * argv[]) {
     
     boost::asio::io_service ioService;
     
-    std::function<void(
-        const boost::system::error_code &,
-        boost::asio::deadline_timer *,
-        TorrentManager *)> requestSaveResumeDataPeriodically = [&](const boost::system::error_code & error, boost::asio::deadline_timer * t, TorrentManager * torrentManager) {
-        torrentManager->requestSaveResumeData();
-        t->expires_at(t->expires_at() + boost::posix_time::seconds(5));
-        t->async_wait(boost::bind(requestSaveResumeDataPeriodically,
-          boost::asio::placeholders::error, t, torrentManager));
-    };
-    
-    boost::asio::deadline_timer t(ioService, boost::posix_time::minutes(5));
-    t.async_wait(boost::bind(requestSaveResumeDataPeriodically,
-          boost::asio::placeholders::error, &t, &torrentManager));
+    torrentManager.getResumeDataManager().start(ioService);
     
     boost::asio::signal_set signals(ioService, SIGINT, SIGTERM);
 
@@ -64,13 +53,9 @@ int main(int argc, char * argv[]) {
             std::cout << "caught SIGTERM" << std::endl;
         }
         
-        if (!torrentManager.isGlobalSaveResumeDataPending()) {
-            torrentManager.requestSaveResumeData();
-        }
-        
-        torrentManager.waitForSaveResumeData();
-        
+        torrentManager.getResumeDataManager().stop();
         service.stop();
+        
         exit(EXIT_SUCCESS);
     });
 
