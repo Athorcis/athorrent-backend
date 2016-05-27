@@ -27,6 +27,7 @@ ssize_t LocalClientSocket::write(const char * buffer, size_t size) {
     m_ioThread = GetCurrentThread();
 
     if (WriteFile(m_namedPipe, buffer, size, &bytesWritten, NULL)) {
+        FlushFileBuffers(m_namedPipe);
         result = bytesWritten;
     } else {
         result = -1;
@@ -37,7 +38,3 @@ ssize_t LocalClientSocket::write(const char * buffer, size_t size) {
     return result;
 }
 
-void LocalClientSocket::flush()
-{
-    FlushFileBuffers(m_namedPipe);
-}

@@ -13,8 +13,3 @@ ssize_t LocalClientSocket::read(char * buffer, size_t length) {
 ssize_t LocalClientSocket::write(const char * buffer, size_t length) {
     return ::write(m_socket, buffer, length);
 }
-
-void LocalClientSocket::flush()
-{
-    ::fflush(m_socket);
-}

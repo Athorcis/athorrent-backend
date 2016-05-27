@@ -10,8 +10,6 @@ class LocalClientSocket : public virtual LocalSocket, public virtual AbstractCli
 
         ssize_t read(char * buffer, size_t size);
         ssize_t write(const char * buffer, size_t size);
-
-        void flush();
 };
 
 #endif /* LOCAL_CLIENT_SOCKET_H */

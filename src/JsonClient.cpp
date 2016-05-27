@@ -60,8 +60,6 @@ void JsonClient<ServerSocketType, ClientSocketType>::send(const JsonResponse * r
             break;
         }
     }
-
-    m_clientSocket->flush();
 }
 
 template<typename ServerSocketType, typename ClientSocketType>
