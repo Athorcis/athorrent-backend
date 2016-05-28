@@ -126,7 +126,7 @@ void ResumeDataManager::waitForSaveResumeDataEnd()
 
 void ResumeDataManager::tryReleaseLock()
 {
-    if (!hasSaveResumeDataPending()) {
+    if (m_saveResumeDataPending == 0) {
         if (hasGlobalSaveResumeDataPending()) {
             m_globalSaveResumeDataPending = false;
         }
