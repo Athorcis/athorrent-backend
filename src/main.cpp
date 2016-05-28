@@ -16,7 +16,7 @@ int main(int argc, char * argv[]) {
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
-        ("user", boost::program_options::value<std::string>(), "set compression level");
+        ("user", boost::program_options::value<std::string>(), "define user id");
     
     boost::program_options::variables_map vm;
     boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -54,6 +54,7 @@ int main(int argc, char * argv[]) {
         }
         
         torrentManager.getResumeDataManager().stop();
+
         service.stop();
         
         exit(EXIT_SUCCESS);
