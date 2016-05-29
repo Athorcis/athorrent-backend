@@ -1,9 +1,12 @@
 #include "AlertManager.h"
 #include "ResumeDataManager.h"
+#include "Json.h"
+#include "Utils.h"
 
 #include <vector>
 #include <iostream>
 #include <boost/thread.hpp>
+
 
 using namespace std;
 
@@ -81,7 +84,25 @@ void AlertManager::handleMetadataReceivedAlert(lt::metadata_received_alert * ale
 
 void AlertManager::handleTorrentFinishedAlert(lt::torrent_finished_alert * alert)
 {
-    boost::thread([this, alert] {
-        m_torrentManager.getResumeDataManager().requestSaveResumeData(alert->handle);
+    lt::torrent_handle & handle = alert->handle;
+    
+    boost::thread([this, &handle] {
+        m_torrentManager.getResumeDataManager().requestSaveResumeData(handle);
     });
+    
+    if (!m_frontendBinPath.empty()) {
+        lt::torrent_status status = handle.status(lt::torrent_handle::query_save_path | lt::torrent_handle::query_name);
+
+        JSON_OBJECT
+        JSON_ADD_STRING("hash", lt::to_hex(handle.info_hash().to_string()))
+        JSON_ADD_STRING("path", status.save_path + '/' + Utils::fromUtf8(status.name))
+        JSON_WRITE(json)
+
+        system((m_frontendBinPath + " triggerHook torrentFinished " + json).c_str());
+    }
+}
+
+void AlertManager::setFrontendBinPath(const string & frontendBinPath)
+{
+    m_frontendBinPath = frontendBinPath;
 }

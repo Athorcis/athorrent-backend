@@ -5,6 +5,7 @@
 
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/session.hpp>
+#include <string>
 
 class AlertManager
 {
@@ -25,9 +26,13 @@ class AlertManager
 
         void handleTorrentFinishedAlert(libtorrent::torrent_finished_alert * alert);
 
+        void setFrontendBinPath(const std::string & frontendBinPath);
+    
     protected:
         TorrentManager & m_torrentManager;
         libtorrent::session & m_session;
+    
+        std::string m_frontendBinPath;
 };
 
 #endif // ALERT_MANAGER_H

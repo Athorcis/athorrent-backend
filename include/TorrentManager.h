@@ -17,6 +17,7 @@ class TorrentManager
         void createTorrent(libtorrent::torrent_handle & handle);
 
         libtorrent::session & getSession();
+        AlertManager & getAlertManager();
         ResumeDataManager & getResumeDataManager();
         
         const std::string & getResumeDataPath() const;

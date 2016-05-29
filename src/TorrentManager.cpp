@@ -53,6 +53,11 @@ lt::session & TorrentManager::getSession()
     return m_session;
 }
 
+AlertManager & TorrentManager::getAlertManager()
+{
+    return *m_alertManager;
+}
+
 ResumeDataManager & TorrentManager::getResumeDataManager()
 {
     return *m_resumeDataManager;
