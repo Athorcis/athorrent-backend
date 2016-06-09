@@ -4,13 +4,12 @@
 A lightweight seedbox backend
 
 ## prerequisites
-- [boost](http://www.boost.org/)
-- [libtorrent](http://www.libtorrent.org/)
-- [rapidjson](http://rapidjson.org/)
+- g++ (or another c++ compiler who supports c++11)
+- boost
+- cmake (to build rapidjson)
+- autoconf, automake and libtool
 
 ## building
 ``` sh
-./bootstrap.sh
-./configure
-make
+./build.sh
 ```
