@@ -24,15 +24,15 @@ TorrentManager::TorrentManager(string userId) :
     m_filesPath("files/" + m_userId)
 {
     if (!fs::exists(m_torrentsPath)) {
-        fs::create_directory(m_torrentsPath);
+        fs::create_directories(m_torrentsPath);
     }
 
     if (!fs::exists(m_resumeDataPath)) {
-        fs::create_directory(m_resumeDataPath);
+        fs::create_directories(m_resumeDataPath);
     }
 
     if (!fs::exists(m_filesPath)) {
-        fs::create_directory(m_filesPath);
+        fs::create_directories(m_filesPath);
     }
 
     lt::settings_pack settings;
