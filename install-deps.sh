@@ -2,7 +2,7 @@
 
 git clone -b RC_1_1 https://github.com/arvidn/libtorrent
 pushd libtorrent
-./bootstrap.sh CPPFLAGS="-DTORRENT_EXPORT_EXTRA" CXXFLAGS="-std=c++11"
+./bootstrap.sh --prefix=/usr CPPFLAGS="-DTORRENT_EXPORT_EXTRA" CXXFLAGS="-std=c++11"
 make
 sudo make install
 popd
