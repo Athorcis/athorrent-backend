@@ -1,9 +1,8 @@
 #!/bin/bash
 
-wget https://github.com/arvidn/libtorrent/releases/download/libtorrent-1_1/libtorrent-rasterbar-1.1.0.tar.gz
-tar -xzvf libtorrent-rasterbar-1.1.0.tar.gz
-pushd libtorrent-rasterbar-1.1.0
-./configure CPPFLAGS="-DTORRENT_EXPORT_EXTRA" CXXFLAGS="-std=c++11"
+git clone -b RC_1_1 https://github.com/arvidn/libtorrent
+pushd libtorrent
+./bootstrap.sh CPPFLAGS="-DTORRENT_EXPORT_EXTRA" CXXFLAGS="-std=c++11"
 make
 sudo make install
 popd
