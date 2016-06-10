@@ -2,6 +2,6 @@
 
 ./install-deps.sh
 
-./bootstrap.sh
+./bootstrap
 ./configure "$@"
 make
