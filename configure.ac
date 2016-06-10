@@ -82,6 +82,9 @@ AC_CHECK_HEADER([windows.h], [
     AM_CONDITIONAL([WINDOWS], [false])
 ])
 
+AC_CHECK_PROG([SETCAP_FOUND], [setcap], [true], [false])
+AM_CONDITIONAL([SETCAP_FOUND], [$SETCAP_FOUND])
+
 AS_ECHO
 AS_ECHO "Generating Makefiles:"
 

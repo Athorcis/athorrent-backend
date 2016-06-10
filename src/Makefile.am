@@ -11,3 +11,8 @@ if WINDOWS
     AM_CPPFLAGS += -D_WIN32_WINNT=0x0600
     athorrent_backend_LDADD += -lwsock32 -lws2_32
 endif
+
+if SETCAP_FOUND
+install-exec-hook:
+	setcap 'cap_net_bind_service=+ep' $(DESTDIR)$(bindir)/athorrent-backend
+endif
