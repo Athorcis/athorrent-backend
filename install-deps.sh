@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 git clone -b RC_1_1 https://github.com/arvidn/libtorrent
 pushd libtorrent
