@@ -29,6 +29,8 @@ void ResumeDataManager::reset()
 
 void ResumeDataManager::stop()
 {
+    m_session.pause();
+    
     if (!hasGlobalSaveResumeDataPending()) {
         requestGlobalSaveResumeData();
     }
@@ -42,7 +44,6 @@ void ResumeDataManager::requestGlobalSaveResumeData()
     m_globalSaveResumeDataPending = true;
 
     std::vector<lt::torrent_handle> handles = m_session.get_torrents();
-    m_session.pause();
 
     for (auto & handle : handles) {
         if (!handle.is_valid()) {
