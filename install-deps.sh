@@ -1,15 +1,15 @@
 #!/bin/sh
 
 git clone -b RC_1_1 https://github.com/arvidn/libtorrent
-pushd libtorrent
+cd libtorrent
 ./bootstrap.sh --prefix=/usr CPPFLAGS="-DTORRENT_EXPORT_EXTRA" CXXFLAGS="-std=c++11"
 make
 sudo make install
-popd
+cd ..
 
 wget https://github.com/miloyip/rapidjson/archive/v1.0.2.tar.gz -O rapidjson-1.0.2.tar.gz
 tar -xzvf rapidjson-1.0.2.tar.gz
-pushd rapidjson-1.0.2
+cd rapidjson-1.0.2
 cmake .
 sudo make install
-popd
+cd ..
