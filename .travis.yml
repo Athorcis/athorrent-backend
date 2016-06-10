@@ -21,6 +21,6 @@ install:
   - ./install-deps.sh
 
 script:
-  - ./bootstrap.sh
+  - ./bootstrap
   - ./configure
   - make
