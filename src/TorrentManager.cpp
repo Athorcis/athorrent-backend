@@ -37,7 +37,9 @@ TorrentManager::TorrentManager(string userId) :
 
     lt::settings_pack settings;
     settings.set_int(lt::settings_pack::alert_mask, lt::alert::status_notification  | lt::alert::storage_notification | lt::alert::error_notification);
-
+    settings.set_int(lt::settings_pack::active_downloads, 12);
+    settings.set_int(lt::settings_pack::active_seeds, 20);
+    
     m_session.apply_settings(settings);
 
     m_resumeDataManager = new ResumeDataManager(*this);
