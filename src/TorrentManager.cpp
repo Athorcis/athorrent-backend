@@ -129,7 +129,7 @@ bool TorrentManager::pauseTorrent(string hash) {
 bool TorrentManager::resumeTorrent(string hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
-    if (torrent.is_valid()) {
+    if (torrent.is_valid() && (!torrent.is_seed() || torrent.get_torrent_info().priv())) {
         torrent.resume();
         torrent.auto_managed(true);
     } else {

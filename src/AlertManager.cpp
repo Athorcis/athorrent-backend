@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 #include <boost/thread.hpp>
-
+#include <libtorrent/torrent_info.hpp>
 
 using namespace std;
 
@@ -90,6 +90,12 @@ void AlertManager::handleTorrentFinishedAlert(lt::torrent_finished_alert * alert
         m_torrentManager.getResumeDataManager().requestSaveResumeData(handle);
     });
     
+    // the torrent is from a public tracker we pause it
+    if (!handle.get_torrent_info().priv()) {
+        handle.auto_managed(false);
+        handle.pause(lt::torrent_handle::graceful_pause);
+    }
+
     if (!m_frontendBinPath.empty()) {
         lt::torrent_status status = handle.status(lt::torrent_handle::query_save_path | lt::torrent_handle::query_name);
 

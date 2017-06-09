@@ -1,4 +1,4 @@
-    #include "AthorrentService.h"
+#include "AthorrentService.h"
 
 #include <iostream>
 #include <fstream>
@@ -99,7 +99,11 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             torrentVal.AddMember("name", Value(Utils::fromUtf8(status.name), allocator).Move(), allocator);
 
             if (status.paused) {
-                torrentVal.AddMember("state", "paused", allocator);
+                if (torrent.is_seed() && !torrent.get_torrent_info().priv()) {
+                    torrentVal.AddMember("state", "finished", allocator);
+                } else {
+                    torrentVal.AddMember("state", "paused", allocator);
+                }
             } else if (status.state == libtorrent::torrent_status::checking_files) {
                 torrentVal.AddMember("state", "cheking_files", allocator);
             } else if (status.state == libtorrent::torrent_status::downloading_metadata) {
