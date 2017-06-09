@@ -8,6 +8,8 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AC_LANG([C++])
 
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+
 AS_ECHO
 AS_ECHO "Checking for a C++ compiler to use:"
 AC_PROG_CXX
