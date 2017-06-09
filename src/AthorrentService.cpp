@@ -184,53 +184,6 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
         std::cerr << "something went wrong [" << action << "]" << std::endl;
     }
 
-//    } else if (action == "saveTorrents") {
-        // vector<libtorrent::torrent_handle> torrents = m_torrentManager->getTorrents();
-
-        // int counter = 0;
-        // for (libtorrent::torrent_handle torrent : torrents) {
-            // libtorrent::torrent_status status = torrent.status();
-
-            // torrent.save_resume_data();
-            // ++counter;
-        // }
-
-
-        // while (counter) {
-            // libtorrent::alert const* a = session->wait_for_alert(libtorrent::seconds(10));
-
-            // if we don't get an alert within 10 seconds, abort
-            // if (a == 0) break;
-
-            // auto_ptr<libtorrent::alert> holder = session->pop_alert();
-
-            // if (libtorrent::alert_cast<libtorrent::save_resume_data_failed_alert>(a))
-            // {
-                // cout << "error: save_resume_data_failed_alert" << endl;
-                    // libtorrent::process_alert(a);
-                    // --counter;
-                    // continue;
-            // }
-
-            // libtorrent::save_resume_data_alert const* rd = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(a);
-            // if (rd == 0)
-            // {
-                // cout << "error:  not the right type" << endl;
-                    // libtorrent::process_alert(a);
-                    // continue;
-            // }
-// cout << "log: saving the resume" << endl;
-            // libtorrent::torrent_handle h = rd->handle;
-            // libtorrent::torrent_status st = h.status(libtorrent::torrent_handle::query_save_path | libtorrent::torrent_handle::query_name);
-
-            // cout << rd->resume_data->to_string() << endl;
-
-            // saveFastResumeData(libtorrent::to_hex(h.info_hash().to_string()), *rd->resume_data);
-
-            // --counter;
-        // }
-//    }
-
     return response;
 }
 
