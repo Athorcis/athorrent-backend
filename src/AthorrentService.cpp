@@ -100,7 +100,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
 
             if (status.paused) {
                 if (torrent.is_seed() && !torrent.get_torrent_info().priv()) {
-                    torrentVal.AddMember("state", "finished", allocator);
+                    torrentVal.AddMember("state", "disabled", allocator);
                 } else {
                     torrentVal.AddMember("state", "paused", allocator);
                 }
