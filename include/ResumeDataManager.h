@@ -7,6 +7,7 @@
 #include <libtorrent/session.hpp>
 #include <libtorrent/entry.hpp>
 
+#include <boost/asio/deadline_timer.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
