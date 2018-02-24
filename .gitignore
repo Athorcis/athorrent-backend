@@ -1,3 +1,5 @@
+/.idea/
+!/m4/ax_boost_*
 
 *.o
 *.exe
