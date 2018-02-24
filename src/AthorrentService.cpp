@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <boost/filesystem.hpp>
-#include "Utils.h"
 #include <libtorrent/announce_entry.hpp>
 #include <libtorrent/torrent_info.hpp>
 #include <libtorrent/torrent_status.hpp>
@@ -96,7 +95,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             Value torrentVal;
             torrentVal.SetObject();
 
-            torrentVal.AddMember("name", Value(Utils::fromUtf8(status.name), allocator).Move(), allocator);
+            torrentVal.AddMember("name", Value(status.name, allocator).Move(), allocator);
 
             if (status.paused) {
                 if (torrent.is_seed() && !torrent.get_torrent_info().priv()) {
@@ -150,7 +149,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
         for (libtorrent::torrent_handle torrent : torrents) {
             libtorrent::torrent_status status = torrent.status(libtorrent::torrent_handle::query_save_path | libtorrent::torrent_handle::query_name);
 
-            data.PushBack(Value(status.save_path + '/' + Utils::fromUtf8(status.name), allocator).Move(), allocator);
+            data.PushBack(Value(status.save_path + '/' + status.name, allocator).Move(), allocator);
         }
         
         response->setStatus("success");

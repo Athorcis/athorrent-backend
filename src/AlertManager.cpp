@@ -1,7 +1,6 @@
 #include "AlertManager.h"
 #include "ResumeDataManager.h"
 #include "Json.h"
-#include "Utils.h"
 
 #include <vector>
 #include <iostream>
@@ -101,7 +100,7 @@ void AlertManager::handleTorrentFinishedAlert(lt::torrent_finished_alert * alert
 
         JSON_OBJECT
         JSON_ADD_STRING("hash", lt::to_hex(handle.info_hash().to_string()))
-        JSON_ADD_STRING("path", status.save_path + '/' + Utils::fromUtf8(status.name))
+        JSON_ADD_STRING("path", status.save_path + '/' + status.name)
         JSON_WRITE(json)
 
         system((m_frontendBinPath + " triggerHook torrentFinished " + json).c_str());

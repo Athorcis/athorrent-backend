@@ -31,11 +31,10 @@ AX_BOOST_BASE([1.47])
 AC_ARG_WITH([boost-suffix],
     AS_HELP_STRING([--with-boost-suffix=-mt]),
     [
-        ax_boost_user_system_lib="boost_locale$withval"
+        ax_boost_user_system_lib="boost_system$withval"
         ax_boost_user_program_options_lib="boost_program_options$withval"
         ax_boost_user_filesystem_lib="boost_filesystem$withval"
         ax_boost_user_thread_lib="boost_thread$withval"
-        ax_boost_user_locale_lib="boost_locale$withval"
     ]
 )
 
@@ -54,10 +53,6 @@ AS_IF([test -z "$BOOST_FILESYSTEM_LIB"],
 AX_BOOST_THREAD()
 AS_IF([test -z "$BOOST_THREAD_LIB"],
       [AC_MSG_ERROR(Boost.Thread library not found. Try using --with-boost-thread=lib)])
-
-AX_BOOST_LOCALE()
-AS_IF([test -z "$BOOST_LOCALE_LIB"],
-      [AC_MSG_ERROR(Boost.Locale library not found. Try using --with-boost-locale=lib)])
 
 AS_ECHO
 AS_ECHO "Checking for libtorrent:"

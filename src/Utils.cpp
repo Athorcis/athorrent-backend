@@ -1,6 +1,5 @@
 #include "Utils.h"
 
-#include <boost/locale.hpp>
 #include <libtorrent/hex.hpp>
 
 using namespace std;
@@ -27,12 +26,4 @@ string Utils::from_hex(string const & hex) {
     }
 
     return ret;
-}
-
-std::string Utils::toUtf8(const std::string & string) {
-    return boost::locale::conv::to_utf<char>(string, "Latin1");
-}
-
-std::string Utils::fromUtf8(const std::string & string) {
-    return boost::locale::conv::from_utf<char>(string, "Latin1");
 }
