@@ -3,9 +3,7 @@
 
 #include <string>
 
-class Utils {
-    public:
-        static std::string from_hex(std::string const & hex);
-};
+std::string hex2bin(const std::string & hex);
+std::string bin2hex(const std::string & bin);
 
 #endif /* UTILS_H */

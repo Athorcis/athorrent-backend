@@ -1,8 +1,10 @@
 #include "ResumeDataManager.h"
+#include "Utils.h"
 
 #include <libtorrent/torrent_status.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -94,9 +96,9 @@ void ResumeDataManager::loadResumeData(const string & hash, vector<char> & data)
     }
 }
 
-void ResumeDataManager::saveResumeData(lt::torrent_handle & handle, boost::shared_ptr<lt::entry> resumeData)
+void ResumeDataManager::saveResumeData(lt::torrent_handle & handle, std::shared_ptr<lt::entry> resumeData)
 {
-    string hash = lt::to_hex(handle.info_hash().to_string());
+    string hash = bin2hex(handle.info_hash().to_string());
     string path = m_torrentManager.getResumeDataPath() + '/' + hash + ".fastresume";
 
     m_torrentManager.writeBencodedTree(path, *resumeData);

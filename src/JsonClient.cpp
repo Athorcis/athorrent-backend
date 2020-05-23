@@ -1,6 +1,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <iostream>
 
 template<typename ServerSocketType, typename ClientSocketType>
 JsonClient<ServerSocketType, ClientSocketType>::JsonClient(JsonServerType * server, ClientSocketType * clientSocket) : m_server(server), m_clientSocket(clientSocket) {

@@ -1,6 +1,7 @@
 #include "AlertManager.h"
 #include "ResumeDataManager.h"
 #include "Json.h"
+#include "Utils.h"
 
 #include <vector>
 #include <iostream>
@@ -99,7 +100,7 @@ void AlertManager::handleTorrentFinishedAlert(lt::torrent_finished_alert * alert
         lt::torrent_status status = handle.status(lt::torrent_handle::query_save_path | lt::torrent_handle::query_name);
 
         JSON_OBJECT
-        JSON_ADD_STRING("hash", lt::to_hex(handle.info_hash().to_string()))
+        JSON_ADD_STRING("hash", bin2hex(handle.info_hash().to_string()))
         JSON_ADD_STRING("path", status.save_path + '/' + status.name)
         JSON_WRITE(json)
 

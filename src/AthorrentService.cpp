@@ -1,4 +1,5 @@
 #include "AthorrentService.h"
+#include "Utils.h"
 
 #include <iostream>
 #include <fstream>
@@ -134,7 +135,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             torrentVal.AddMember("num_incomplete", status.num_incomplete, allocator);
             torrentVal.AddMember("list_seeds", status.list_seeds, allocator);
             torrentVal.AddMember("list_peers", status.list_peers, allocator);
-            torrentVal.AddMember("hash", Value(libtorrent::to_hex(status.info_hash.to_string()), allocator).Move(), allocator);
+            torrentVal.AddMember("hash", Value(bin2hex(status.info_hash.to_string()), allocator).Move(), allocator);
 
             data.PushBack(torrentVal, allocator);
         }
@@ -161,19 +162,22 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             libtorrent::torrent_handle torrent_handle = m_torrentManager->getTorrent(request->getParameter("hash"));
 
             if (torrent_handle.is_valid()) {
-                boost::shared_ptr<const libtorrent::torrent_info> torrent_info = torrent_handle.torrent_file();
+                std::shared_ptr<const libtorrent::torrent_info> torrent_info = torrent_handle.torrent_file();
                 std::vector<libtorrent::announce_entry> trackers = torrent_info->trackers();
 
                 for (libtorrent::announce_entry tracker : trackers) {
-                    Value trackerVal;
-                    trackerVal.SetObject();
                     
-                    trackerVal.AddMember("id", Value(tracker.trackerid, allocator).Move(), allocator);
-                    trackerVal.AddMember("url", Value(tracker.url, allocator).Move(), allocator);
-                    trackerVal.AddMember("peers", tracker.scrape_complete + tracker.scrape_incomplete, allocator);
-                    trackerVal.AddMember("message", Value(tracker.message, allocator).Move(), allocator);
+                    for (libtorrent::announce_endpoint endpoint : tracker.endpoints) {
+                        Value trackerVal;
+                        trackerVal.SetObject();
+                        
+                        trackerVal.AddMember("id", Value(tracker.trackerid, allocator).Move(), allocator);
+                        trackerVal.AddMember("url", Value(tracker.url, allocator).Move(), allocator);
+                        trackerVal.AddMember("peers", endpoint.scrape_complete + endpoint.scrape_incomplete, allocator);
+                        trackerVal.AddMember("message", Value(endpoint.message, allocator).Move(), allocator);
 
-                    data.PushBack(trackerVal, allocator);
+                        data.PushBack(trackerVal, allocator);
+                    }
                 }
             }
 

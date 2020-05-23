@@ -8,7 +8,6 @@
 #include <libtorrent/entry.hpp>
 
 #include <boost/asio/deadline_timer.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
 
@@ -28,7 +27,7 @@ class ResumeDataManager
         void requestSaveResumeData(libtorrent::torrent_handle & handle);
 
         void loadResumeData(const std::string & hash, std::vector<char> & data);
-        void saveResumeData(libtorrent::torrent_handle & handle, boost::shared_ptr<libtorrent::entry> resumeData);
+        void saveResumeData(libtorrent::torrent_handle & handle, std::shared_ptr<libtorrent::entry> resumeData);
 
         bool hasGlobalSaveResumeDataPending() const;
         bool hasSaveResumeDataPending() const;

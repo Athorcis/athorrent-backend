@@ -11,6 +11,7 @@
 #include <libtorrent/error_code.hpp>
 
 #include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -73,12 +74,12 @@ const string & TorrentManager::getResumeDataPath() const
 void TorrentManager::createTorrent(lt::torrent_handle & handle)
 {
     if (handle.is_valid()) {
-        boost::shared_ptr<const lt::torrent_info> info = handle.torrent_file();
+        std::shared_ptr<const lt::torrent_info> info = handle.torrent_file();
         
         lt::create_torrent createTorrent(*info);
         lt::entry entry = createTorrent.generate();
 
-        string path = m_torrentsPath + "/" + lt::to_hex(info->info_hash().to_string()) + ".torrent";
+        string path = m_torrentsPath + "/" + bin2hex(info->info_hash().to_string()) + ".torrent";
         writeBencodedTree(path, entry);
     }
 }
@@ -98,7 +99,7 @@ bool TorrentManager::hasTorrent(lt::sha1_hash hash) {
 }
 
 bool TorrentManager::hasTorrent(string hash) {
-    return hasTorrent(lt::sha1_hash(Utils::from_hex(hash)));
+    return hasTorrent(lt::sha1_hash(hex2bin(hash)));
 }
 
 lt::torrent_handle TorrentManager::getTorrent(lt::sha1_hash hash) {
@@ -106,7 +107,7 @@ lt::torrent_handle TorrentManager::getTorrent(lt::sha1_hash hash) {
 }
 
 lt::torrent_handle TorrentManager::getTorrent(string hash) {
-    return getTorrent(lt::sha1_hash(Utils::from_hex(hash)));
+    return getTorrent(lt::sha1_hash(hex2bin(hash)));
 }
 
 vector<lt::torrent_handle> TorrentManager::getTorrents() {
@@ -160,7 +161,7 @@ string TorrentManager::addTorrentFromFile(string path, bool resumeData) {
     lt::sha1_hash hash = torrentInfo->info_hash();
 
     if (!hasTorrent(hash)) {
-        string hex = lt::to_hex(hash.to_string());
+        string hex = bin2hex(hash.to_string());
 
         if (!fs::exists(m_torrentsPath + "/" + hex + ".torrent")) {
             fs::copy_file(path, m_torrentsPath + "/" + hex + ".torrent");
@@ -168,7 +169,7 @@ string TorrentManager::addTorrentFromFile(string path, bool resumeData) {
 
         lt::add_torrent_params parameters;
 
-        parameters.ti = boost::shared_ptr<lt::torrent_info>(torrentInfo);
+        parameters.ti = std::shared_ptr<lt::torrent_info>(torrentInfo);
         parameters.save_path = m_filesPath;
 
         if (resumeData) {
@@ -193,12 +194,12 @@ string TorrentManager::addTorrentFromMagnet(string uri) {
 
     parameters.url = uri;
     parameters.save_path = m_filesPath;
-    parameters.flags = lt::add_torrent_params::default_flags | lt::add_torrent_params::flag_duplicate_is_error;
+    parameters.flags = lt::torrent_flags::default_flags | lt::add_torrent_params::flag_duplicate_is_error;
     
     try {
         lt::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
         
-        return lt::to_hex(torrentHandle.info_hash().to_string());
+        return bin2hex(torrentHandle.info_hash().to_string());
     } catch (std::exception except) {
         
     }
