@@ -12,7 +12,7 @@ addons:
           - ubuntu-toolchain-r-test
         
         packages:
-          - libboost1.55-all-dev
+          - libboost1.58-all-dev
           - g++-5
           - cmake
 
