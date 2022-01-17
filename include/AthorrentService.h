@@ -18,7 +18,7 @@ class AthorrentService : public JsonServer<LocalServerSocket, LocalClientSocket>
         void setFlag(const std::string & flag);
         void resetFlag(const std::string & flag);
 
-        static std::string getPath(const std::string & userId);
+        static std::string getPath(const std::string & port);
 
     private:
         TorrentManager * m_torrentManager;

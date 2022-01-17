@@ -11,8 +11,8 @@
 
 using namespace rapidjson;
 
-AthorrentService::AthorrentService(const std::string & userId, TorrentManager * torrentManager) : JsonServer(AthorrentService::getPath(userId)), m_torrentManager(torrentManager) {
-    m_flagDir = "flags/" + userId;
+AthorrentService::AthorrentService(const std::string & address, TorrentManager * torrentManager) : JsonServer(address), m_torrentManager(torrentManager) {
+    m_flagDir = "flags";
 
     if (!boost::filesystem::exists(m_flagDir)) {
         boost::filesystem::create_directories(m_flagDir);
@@ -197,14 +197,4 @@ void AthorrentService::setFlag(const std::string & flag) {
 
 void AthorrentService::resetFlag(const std::string & flag) {
     boost::filesystem::remove(m_flagDir + '/' + flag);
-}
-
-std::string AthorrentService::getPath(const std::string & userId) {
-#ifdef _WIN32
-    std::string path = "\\\\.\\pipe\\athorrentd\\sockets\\" + userId + ".sck";
-#elif defined __linux__
-    std::string path = "sockets/" + userId + ".sck";
-#endif
-
-    return path;
 }

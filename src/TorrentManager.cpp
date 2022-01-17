@@ -18,11 +18,10 @@ using namespace std;
 namespace fs = boost::filesystem;
 namespace lt = libtorrent;
 
-TorrentManager::TorrentManager(string userId, string port) :
-    m_userId(userId),
-    m_torrentsPath("cache/" + m_userId + "/torrents"),
-    m_resumeDataPath("cache/" + m_userId + "/fastresume"),
-    m_filesPath("files/" + m_userId)
+TorrentManager::TorrentManager(string port) :
+    m_torrentsPath("cache/torrents"),
+    m_resumeDataPath("cache/fastresume"),
+    m_filesPath("files")
 {
     if (!fs::exists(m_torrentsPath)) {
         fs::create_directories(m_torrentsPath);

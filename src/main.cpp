@@ -22,7 +22,6 @@ int main(int argc, char * argv[])
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()
         ("help", "produce help message")
-        ("user", boost::program_options::value<std::string>(), "user id of the user")
         ("port", boost::program_options::value<std::string>(), "listening port to use")
         ("frontend-bin", boost::program_options::value<std::string>(), "path to the frontend binary");
     
@@ -36,12 +35,11 @@ int main(int argc, char * argv[])
         return EXIT_FAILURE;
     }
     
-    if (vm.count("help") || !vm.count("user")) {
+    if (vm.count("help") || !vm.count("port")) {
         std::cerr << desc << std::endl;
         return EXIT_FAILURE;
     }
-    
-    std::string userId = vm["user"].as<std::string>();
+
     std::string port = vm["port"].as<std::string>();
 
     if (!boost::filesystem::exists("cache")) {
@@ -52,13 +50,19 @@ int main(int argc, char * argv[])
         boost::filesystem::create_directory("files");
     }
     
-    TorrentManager torrentManager(userId, port);
+    TorrentManager torrentManager(port);
     
     if (vm.count("frontend-bin")) {
         torrentManager.getAlertManager().setFrontendBinPath(vm["frontend-bin"].as<std::string>());
     }
-    
-    AthorrentService service(userId, &torrentManager);
+
+#ifdef _WIN32
+        std::string address = "\\\\.\\pipe\\athorrentd\\sockets\\" + port + ".sck";
+#elif defined __linux__
+        std::string address = "athorrentd.sck";
+#endif
+
+    AthorrentService service(address, &torrentManager);
     
     boost::asio::io_service ioService;
     torrentManager.getResumeDataManager().start(ioService);

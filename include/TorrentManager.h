@@ -12,7 +12,7 @@ class ResumeDataManager;
 class TorrentManager
 {
     public:
-        TorrentManager(std::string userId, std::string port);
+        TorrentManager(std::string port);
     
         void createTorrent(libtorrent::torrent_handle & handle);
 
@@ -43,8 +43,6 @@ class TorrentManager
         std::string addTorrentFromMagnet(std::string uri);
 
     private:
-        std::string m_userId;
-
         std::string m_torrentsPath;
         std::string m_resumeDataPath;
         std::string m_filesPath;
