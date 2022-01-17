@@ -18,7 +18,7 @@ using namespace std;
 namespace fs = boost::filesystem;
 namespace lt = libtorrent;
 
-TorrentManager::TorrentManager(string userId) :
+TorrentManager::TorrentManager(string userId, string port) :
     m_userId(userId),
     m_torrentsPath("cache/" + m_userId + "/torrents"),
     m_resumeDataPath("cache/" + m_userId + "/fastresume"),
@@ -40,7 +40,11 @@ TorrentManager::TorrentManager(string userId) :
     settings.set_int(lt::settings_pack::alert_mask, lt::alert::status_notification  | lt::alert::storage_notification | lt::alert::error_notification);
     settings.set_int(lt::settings_pack::active_downloads, 12);
     settings.set_int(lt::settings_pack::active_seeds, 20);
-    
+    settings.set_bool(lt::settings_pack::enable_lsd, false);
+    settings.set_bool(lt::settings_pack::enable_upnp, false);
+    settings.set_bool(lt::settings_pack::enable_natpmp, false);
+    settings.set_str(lt::settings_pack::listen_interfaces, std::string("0.0.0.0:") + port + ",[::]:" + port);
+
     m_session.apply_settings(settings);
 
     m_resumeDataManager = new ResumeDataManager(*this);

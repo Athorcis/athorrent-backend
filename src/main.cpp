@@ -23,6 +23,7 @@ int main(int argc, char * argv[])
     desc.add_options()
         ("help", "produce help message")
         ("user", boost::program_options::value<std::string>(), "user id of the user")
+        ("port", boost::program_options::value<std::string>(), "listening port to use")
         ("frontend-bin", boost::program_options::value<std::string>(), "path to the frontend binary");
     
     boost::program_options::variables_map vm;
@@ -41,7 +42,8 @@ int main(int argc, char * argv[])
     }
     
     std::string userId = vm["user"].as<std::string>();
-    
+    std::string port = vm["port"].as<std::string>();
+
     if (!boost::filesystem::exists("cache")) {
         boost::filesystem::create_directory("cache");
     }
@@ -50,7 +52,7 @@ int main(int argc, char * argv[])
         boost::filesystem::create_directory("files");
     }
     
-    TorrentManager torrentManager(userId);
+    TorrentManager torrentManager(userId, port);
     
     if (vm.count("frontend-bin")) {
         torrentManager.getAlertManager().setFrontendBinPath(vm["frontend-bin"].as<std::string>());
