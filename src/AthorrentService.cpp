@@ -12,21 +12,14 @@
 using namespace rapidjson;
 
 AthorrentService::AthorrentService(const std::string & address, TorrentManager * torrentManager) : JsonServer(address), m_torrentManager(torrentManager) {
-    m_flagDir = "flags";
-
-    if (!boost::filesystem::exists(m_flagDir)) {
-        boost::filesystem::create_directories(m_flagDir);
-    }
 }
 
 void AthorrentService::run() {
-    setFlag("running");
     JsonServer::run();
 }
 
 void AthorrentService::stop() {
     JsonServer::stop();
-    resetFlag("running");
 }
 
 JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
@@ -188,13 +181,4 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
     }
 
     return response;
-}
-
-void AthorrentService::setFlag(const std::string & flag) {
-    std::ofstream file(m_flagDir + '/' + flag);
-    file.close();
-}
-
-void AthorrentService::resetFlag(const std::string & flag) {
-    boost::filesystem::remove(m_flagDir + '/' + flag);
 }

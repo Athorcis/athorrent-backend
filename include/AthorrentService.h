@@ -15,14 +15,10 @@ class AthorrentService : public JsonServer<LocalServerSocket, LocalClientSocket>
 
         JsonResponse * handleRequest(const JsonRequest * request);
 
-        void setFlag(const std::string & flag);
-        void resetFlag(const std::string & flag);
-
         static std::string getPath(const std::string & port);
 
     private:
         TorrentManager * m_torrentManager;
-        std::string m_flagDir;
 };
 
 #endif /* JSON_SERVICE_H */
