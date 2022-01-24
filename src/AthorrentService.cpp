@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <libtorrent/announce_entry.hpp>
 #include <libtorrent/torrent_info.hpp>
 #include <libtorrent/torrent_status.hpp>
@@ -35,6 +36,9 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
     } else if (action == "addTorrentFromFile") {
         if (request->hasParameter("file")) {
             std::string file = request->getParameter("file");
+            std::string cwd(boost::filesystem::current_path().string());
+
+            boost::replace_first(file, "<workdir>", cwd);
 
             if (boost::filesystem::exists(file)) {
                 std::string hash = m_torrentManager->addTorrentFromFile(file);
@@ -138,12 +142,16 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
         Value & data = response->getData();
         data.SetArray();
 
+        std::string cwd(boost::filesystem::current_path().string());
         std::vector<libtorrent::torrent_handle> torrents = m_torrentManager->getTorrents();
 
         for (libtorrent::torrent_handle torrent : torrents) {
             libtorrent::torrent_status status = torrent.status(libtorrent::torrent_handle::query_save_path | libtorrent::torrent_handle::query_name);
 
-            data.PushBack(Value(status.save_path + '/' + status.name, allocator).Move(), allocator);
+            std::string torrentPath = status.save_path + '/' + status.name;
+
+            boost::replace_first(torrentPath, cwd, "<workdir>");
+            data.PushBack(Value(torrentPath, allocator).Move(), allocator);
         }
         
         response->setStatus("success");
