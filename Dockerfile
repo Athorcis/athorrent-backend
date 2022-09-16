@@ -58,7 +58,8 @@ RUN set -ex ;\
         libboost-program-options1.74.0 \
         libboost-random1.74.0 \
         libboost-system1.74.0 \
-        libboost-thread1.74.0 ;\
+        libboost-thread1.74.0 \
+        socat ;\
     rm -rf /var/lib/apt/lists/*
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
@@ -69,3 +70,6 @@ COPY --from=build /usr/local/lib/libtorrent-rasterbar.so.10 /usr/local/lib/libto
 ENTRYPOINT ["/usr/local/bin/athorrent-backend"]
 
 CMD ["--port", "6881"]
+
+HEALTHCHECK --interval=5s --timeout=1s \
+    CMD echo '{"action":"ping","parameters":{}}' | socat - UNIX-CONNECT:/var/lib/athorrent-backend/athorrentd.sck | grep -q '{"status":"success","data":"pong"}'
