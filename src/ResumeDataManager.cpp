@@ -2,6 +2,8 @@
 #include "Utils.h"
 
 #include <libtorrent/torrent_status.hpp>
+#include <libtorrent/read_resume_data.hpp>
+#include <libtorrent/write_resume_data.hpp>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <iostream>
@@ -79,29 +81,41 @@ void ResumeDataManager::requestSaveResumeData(const lt::torrent_handle & handle)
     }
 }
 
-void ResumeDataManager::loadResumeData(const string & hash, vector<char> & data)
+lt::add_torrent_params ResumeDataManager::loadResumeData(const string & hash, bool & resumeDataLoaded)
 {
+    lt::add_torrent_params atp;
+
     string path = m_torrentManager.getResumeDataPath() + '/' + hash + ".fastresume";
 
     try {
-        if (fs::file_size(path) > 0) {
+        if (fs::exists(path) && fs::file_size(path) > 0) {
             ifstream file(path.c_str(), ifstream::in | ifstream::binary);
             file.unsetf(ios::skipws);
-
             istream_iterator<char> start(file), end;
-            data.assign(start, end);
+
+            vector<char> buf(start, end);
+
+            atp = lt::read_resume_data(buf);
+            resumeDataLoaded = true;
         }
     } catch (const std::exception & except) {
-        cerr << "failed to load fastresume data" << endl;
+        cerr << "failed to load fastresume data for " << path << " " << except.what() << endl;
     }
+
+    return atp;
 }
 
-void ResumeDataManager::saveResumeData(const lt::torrent_handle & handle, std::shared_ptr<lt::entry> resumeData)
+void ResumeDataManager::saveResumeData(const lt::save_resume_data_alert * alert)
 {
+    lt::torrent_handle handle = alert->handle;
+
     string hash = bin2hex(handle.info_hash().to_string());
     string path = m_torrentManager.getResumeDataPath() + '/' + hash + ".fastresume";
 
-    m_torrentManager.writeBencodedTree(path, *resumeData);
+    std::ofstream of(path, std::ios_base::binary);
+    of.unsetf(std::ios_base::skipws);
+    auto const b = write_resume_data_buf(alert->params);
+    of.write(b.data(), int(b.size()));
 
     if (hasSaveResumeDataPending()) {
         --m_saveResumeDataPending;

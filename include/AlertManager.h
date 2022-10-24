@@ -24,7 +24,7 @@ class AlertManager
 
         void handleMetadataReceivedAlert(libtorrent::metadata_received_alert * alert);
 
-        void handleTorrentFinishedAlert(libtorrent::torrent_finished_alert * alert);
+        void handleTorrentFinishedAlert(const libtorrent::torrent_finished_alert * alert);
 
         void setFrontendBinPath(const std::string & frontendBinPath);
     

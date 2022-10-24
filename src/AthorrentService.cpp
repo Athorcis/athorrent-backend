@@ -103,10 +103,11 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                 torrentVal.AddMember("state", "finished", allocator);
             } else if (status.state == libtorrent::torrent_status::seeding) {
                 torrentVal.AddMember("state", "seeding", allocator);
-            } else if (status.state == libtorrent::torrent_status::allocating) {
-                torrentVal.AddMember("state", "allocating", allocator);
             } else if (status.state == libtorrent::torrent_status::checking_resume_data) {
                 torrentVal.AddMember("state", "checking_resume_data", allocator);
+            }
+            else {
+                torrentVal.AddMember("state", "unknown_state", allocator);
             }
 
             torrentVal.AddMember("paused", !!(torrent.flags() & lt::torrent_flags::paused), allocator);

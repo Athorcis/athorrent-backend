@@ -3,6 +3,7 @@
 
 #include "TorrentManager.h"
 
+#include <libtorrent/alert_types.hpp>
 #include <libtorrent/torrent_handle.hpp>
 #include <libtorrent/session.hpp>
 #include <libtorrent/entry.hpp>
@@ -26,8 +27,8 @@ class ResumeDataManager
         void requestGlobalSaveResumeData();
         void requestSaveResumeData(const libtorrent::torrent_handle & handle);
 
-        void loadResumeData(const std::string & hash, std::vector<char> & data);
-        void saveResumeData(const libtorrent::torrent_handle & handle, std::shared_ptr<libtorrent::entry> resumeData);
+        libtorrent::add_torrent_params loadResumeData(const std::string & hash, bool & resumeDataLoaded);
+        void saveResumeData(const lt::save_resume_data_alert * alert);
 
         bool hasGlobalSaveResumeDataPending() const;
         bool hasSaveResumeDataPending() const;

@@ -70,7 +70,7 @@ void AlertManager::handleAlert(lt::alert * alert)
 
 void AlertManager::handleSaveResumeDataAlert(lt::save_resume_data_alert * alert)
 {
-    m_torrentManager.getResumeDataManager().saveResumeData(alert->handle, alert->resume_data);
+    m_torrentManager.getResumeDataManager().saveResumeData(alert);
 }
 
 void AlertManager::handleSaveResumeDataFailedAlert(lt::save_resume_data_failed_alert * alert) {}
@@ -82,9 +82,9 @@ void AlertManager::handleMetadataReceivedAlert(lt::metadata_received_alert * ale
     m_torrentManager.createTorrent(alert->handle);
 }
 
-void AlertManager::handleTorrentFinishedAlert(lt::torrent_finished_alert * alert)
+void AlertManager::handleTorrentFinishedAlert(const lt::torrent_finished_alert * alert)
 {
-    lt::torrent_handle & handle = alert->handle;
+    const lt::torrent_handle & handle = alert->handle;
     
     boost::thread([this, &handle] {
         m_torrentManager.getResumeDataManager().requestSaveResumeData(handle);
