@@ -38,8 +38,8 @@ class ResumeDataManager
         TorrentManager & m_torrentManager;
         libtorrent::session & m_session;
 
-        bool m_globalSaveResumeDataPending;
-        int m_saveResumeDataPending;
+        bool m_globalSaveResumeDataPending = false;
+        int m_saveResumeDataPending = 0;
 
         boost::mutex m_resumeDataMutex;
         boost::condition_variable m_resumeDataCondition;

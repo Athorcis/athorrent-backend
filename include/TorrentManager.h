@@ -43,9 +43,9 @@ class TorrentManager
         std::string addTorrentFromMagnet(const std::string & uri);
 
     private:
-        std::string m_torrentsPath;
-        std::string m_resumeDataPath;
-        std::string m_filesPath;
+        std::string m_torrentsPath = "cache/torrents";
+        std::string m_resumeDataPath = "cache/fastresume";
+        std::string m_filesPath = "files";
     
         libtorrent::session m_session;
     

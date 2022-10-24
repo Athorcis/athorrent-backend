@@ -11,7 +11,7 @@ using namespace std;
 namespace fs = boost::filesystem;
 namespace lt = libtorrent;
 
-ResumeDataManager::ResumeDataManager(TorrentManager & torrentManager) : m_torrentManager(torrentManager), m_session(torrentManager.getSession()), m_globalSaveResumeDataPending(false), m_saveResumeDataPending(0) {}
+ResumeDataManager::ResumeDataManager(TorrentManager & torrentManager) : m_torrentManager(torrentManager), m_session(torrentManager.getSession()) {}
 
 void ResumeDataManager::start(boost::asio::io_service & ioService)
 {
@@ -91,7 +91,7 @@ void ResumeDataManager::loadResumeData(const string & hash, vector<char> & data)
             istream_iterator<char> start(file), end;
             data.assign(start, end);
         }
-    } catch (std::exception except) {
+    } catch (const std::exception & except) {
         cerr << "failed to load fastresume data" << endl;
     }
 }

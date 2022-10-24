@@ -18,10 +18,7 @@ using namespace std;
 namespace fs = boost::filesystem;
 namespace lt = libtorrent;
 
-TorrentManager::TorrentManager(const string & port) :
-    m_torrentsPath("cache/torrents"),
-    m_resumeDataPath("cache/fastresume"),
-    m_filesPath("files")
+TorrentManager::TorrentManager(const string & port)
 {
     if (!fs::exists(m_torrentsPath)) {
         fs::create_directories(m_torrentsPath);
@@ -160,7 +157,7 @@ bool TorrentManager::removeTorrent(const string & hash) {
 string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) {
     cout << "loadTorrentFromFile " << path << endl;
     lt::error_code errorCode;
-    lt::torrent_info * torrentInfo = new lt::torrent_info(path, errorCode);
+    auto * torrentInfo = new lt::torrent_info(path, errorCode);
     lt::sha1_hash hash = torrentInfo->info_hash();
 
     if (!hasTorrent(hash)) {
@@ -186,7 +183,7 @@ string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) 
         delete torrentInfo;
     }
     
-    return string();
+    return {};
 }
 
 string TorrentManager::addTorrentFromMagnet(const string & uri) {
@@ -203,11 +200,11 @@ string TorrentManager::addTorrentFromMagnet(const string & uri) {
         lt::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
         
         return bin2hex(torrentHandle.info_hash().to_string());
-    } catch (std::exception except) {
+    } catch (const std::exception & except) {
         
     }
     
-    return string();
+    return {};
 }
 
 void TorrentManager::addTorrentsFromDirectory(const string & path) {

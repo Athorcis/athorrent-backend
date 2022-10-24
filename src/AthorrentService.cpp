@@ -15,16 +15,8 @@ using namespace rapidjson;
 AthorrentService::AthorrentService(const std::string & address, TorrentManager * torrentManager) : JsonServer(address), m_torrentManager(torrentManager) {
 }
 
-void AthorrentService::run() {
-    JsonServer::run();
-}
-
-void AthorrentService::stop() {
-    JsonServer::stop();
-}
-
 JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
-    JsonResponse * response = new JsonResponse();
+    auto * response = new JsonResponse();
     Document::AllocatorType & allocator = response->getAllocator();
     
     const std::string & action = request->getAction();

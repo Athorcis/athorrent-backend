@@ -24,12 +24,12 @@ string hex2bin(const string & hex) {
 
     string bin;
 
-    for (string::const_iterator it = hex.begin(); it != hex.end(); ++it) {
+    for (auto it = hex.begin(); it != hex.end(); ++it) {
         
         int8_t n = hex_to_int(*it);
 
         if (n == -1) {
-            return string();
+            return {};
         }
         
         bin += static_cast<char>(n << 4);
@@ -37,7 +37,7 @@ string hex2bin(const string & hex) {
         n = hex_to_int(*++it);
         
         if (n == -1) {
-            return string();
+            return {};
         }
         
         bin[bin.size() - 1] |= n & 0xf;
@@ -52,10 +52,7 @@ string bin2hex(const string & bin)
     
     std::string hex;
 
-    for (string::const_iterator it = bin.begin(); it != bin.end(); ++it) {
-
-        uint8_t c = *it;
-
+    for (unsigned char c : bin) {
         hex += map[c >> 4];
         hex += map[c & 0xf];
     }
