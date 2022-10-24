@@ -1,4 +1,4 @@
-FROM debian:11.2-slim AS build
+FROM debian:11.5-slim AS build
 
 RUN set -ex ;\
     apt-get update ;\
@@ -17,7 +17,7 @@ RUN set -ex ;\
       pkg-config
 
 RUN set -ex ;\
-    git clone --depth 1 --branch v1.2.15 https://github.com/arvidn/libtorrent ;\
+    git clone --depth 1 --branch v1.2.18 https://github.com/arvidn/libtorrent ;\
     cd libtorrent ;\
     ./autotool.sh ;\
     ./configure ;\
@@ -48,7 +48,7 @@ RUN set -ex ;\
     ./configure CXXFLAGS="-std=c++14" ;\
     make -j $(nproc)
 
-FROM debian:11.2-slim
+FROM debian:11.5-slim
 
 RUN set -ex ;\
     apt-get update ;\
