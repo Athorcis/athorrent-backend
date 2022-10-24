@@ -18,7 +18,7 @@ using namespace std;
 namespace fs = boost::filesystem;
 namespace lt = libtorrent;
 
-TorrentManager::TorrentManager(string port) :
+TorrentManager::TorrentManager(const string & port) :
     m_torrentsPath("cache/torrents"),
     m_resumeDataPath("cache/fastresume"),
     m_filesPath("files")
@@ -74,7 +74,7 @@ const string & TorrentManager::getResumeDataPath() const
     return m_resumeDataPath;
 }
 
-void TorrentManager::createTorrent(lt::torrent_handle & handle)
+void TorrentManager::createTorrent(const lt::torrent_handle & handle)
 {
     if (handle.is_valid()) {
         std::shared_ptr<const lt::torrent_info> info = handle.torrent_file();
@@ -97,19 +97,19 @@ void TorrentManager::writeBencodedTree(const string & path, const lt::entry & en
     }
 }
 
-bool TorrentManager::hasTorrent(lt::sha1_hash hash) {
+bool TorrentManager::hasTorrent(lt::sha1_hash hash) const {
     return m_session.find_torrent(hash).is_valid();
 }
 
-bool TorrentManager::hasTorrent(string hash) {
+bool TorrentManager::hasTorrent(const string & hash) const {
     return hasTorrent(lt::sha1_hash(hex2bin(hash)));
 }
 
-lt::torrent_handle TorrentManager::getTorrent(lt::sha1_hash hash) {
+lt::torrent_handle TorrentManager::getTorrent(lt::sha1_hash hash) const {
     return m_session.find_torrent(hash);
 }
 
-lt::torrent_handle TorrentManager::getTorrent(string hash) {
+lt::torrent_handle TorrentManager::getTorrent(const string & hash) const {
     return getTorrent(lt::sha1_hash(hex2bin(hash)));
 }
 
@@ -117,7 +117,7 @@ vector<lt::torrent_handle> TorrentManager::getTorrents() {
     return m_session.get_torrents();
 }
 
-bool TorrentManager::pauseTorrent(string hash) {
+bool TorrentManager::pauseTorrent(const string & hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
     if (torrent.is_valid()) {
@@ -130,7 +130,7 @@ bool TorrentManager::pauseTorrent(string hash) {
     return true;
 }
 
-bool TorrentManager::resumeTorrent(string hash) {
+bool TorrentManager::resumeTorrent(const string & hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
     if (torrent.is_valid() && (!(torrent.flags() & lt::torrent_flags::seed_mode) || torrent.torrent_file()->priv())) {
@@ -143,7 +143,7 @@ bool TorrentManager::resumeTorrent(string hash) {
     return true;
 }
 
-bool TorrentManager::removeTorrent(string hash) {
+bool TorrentManager::removeTorrent(const string & hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
     if (torrent.is_valid()) {
@@ -157,7 +157,7 @@ bool TorrentManager::removeTorrent(string hash) {
     return true;
 }
 
-string TorrentManager::addTorrentFromFile(string path, bool resumeData) {
+string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) {
     cout << "loadTorrentFromFile " << path << endl;
     lt::error_code errorCode;
     lt::torrent_info * torrentInfo = new lt::torrent_info(path, errorCode);
@@ -189,7 +189,7 @@ string TorrentManager::addTorrentFromFile(string path, bool resumeData) {
     return string();
 }
 
-string TorrentManager::addTorrentFromMagnet(string uri) {
+string TorrentManager::addTorrentFromMagnet(const string & uri) {
     cout << "loadTorrentFromMagnet " << uri << endl;
 
     lt::error_code errorCode;
@@ -210,7 +210,7 @@ string TorrentManager::addTorrentFromMagnet(string uri) {
     return string();
 }
 
-void TorrentManager::addTorrentsFromDirectory(string path) {
+void TorrentManager::addTorrentsFromDirectory(const string & path) {
     for (fs::directory_iterator iterator(path), end; iterator != end; ++iterator) {
         addTorrentFromFile(iterator->path().string(), true);
     }

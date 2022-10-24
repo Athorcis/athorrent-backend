@@ -24,10 +24,10 @@ class ResumeDataManager
         void stop();
 
         void requestGlobalSaveResumeData();
-        void requestSaveResumeData(libtorrent::torrent_handle & handle);
+        void requestSaveResumeData(const libtorrent::torrent_handle & handle);
 
         void loadResumeData(const std::string & hash, std::vector<char> & data);
-        void saveResumeData(libtorrent::torrent_handle & handle, std::shared_ptr<libtorrent::entry> resumeData);
+        void saveResumeData(const libtorrent::torrent_handle & handle, std::shared_ptr<libtorrent::entry> resumeData);
 
         bool hasGlobalSaveResumeDataPending() const;
         bool hasSaveResumeDataPending() const;

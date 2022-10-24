@@ -47,7 +47,7 @@ void ResumeDataManager::requestGlobalSaveResumeData()
 
     std::vector<lt::torrent_handle> handles = m_session.get_torrents();
 
-    for (auto & handle : handles) {
+    for (const auto & handle : handles) {
         if (!handle.is_valid()) {
             continue;
         }
@@ -67,7 +67,7 @@ void ResumeDataManager::requestGlobalSaveResumeData()
     tryReleaseLock();
 }
 
-void ResumeDataManager::requestSaveResumeData(lt::torrent_handle & handle)
+void ResumeDataManager::requestSaveResumeData(const lt::torrent_handle & handle)
 {
     waitForSaveResumeDataEnd();
 
@@ -96,7 +96,7 @@ void ResumeDataManager::loadResumeData(const string & hash, vector<char> & data)
     }
 }
 
-void ResumeDataManager::saveResumeData(lt::torrent_handle & handle, std::shared_ptr<lt::entry> resumeData)
+void ResumeDataManager::saveResumeData(const lt::torrent_handle & handle, std::shared_ptr<lt::entry> resumeData)
 {
     string hash = bin2hex(handle.info_hash().to_string());
     string path = m_torrentManager.getResumeDataPath() + '/' + hash + ".fastresume";

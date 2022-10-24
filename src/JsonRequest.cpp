@@ -14,7 +14,7 @@ JsonRequest::JsonRequest(const string & buffer)
         throw "JsonRequest::JsonRequest: root is not an object";
     }
 
-    Value & action = operator[]("action");
+    const Value & action = operator[]("action");
 
     if (!action.IsString()) {
         throw "JsonRequest::JsonRequest: action is not a string";

@@ -87,7 +87,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
         
         std::vector<libtorrent::torrent_handle> torrents = m_torrentManager->getTorrents();
 
-        for (libtorrent::torrent_handle torrent : torrents) {
+        for (const libtorrent::torrent_handle& torrent : torrents) {
             libtorrent::torrent_status status = torrent.status(libtorrent::torrent_handle::query_accurate_download_counters | libtorrent::torrent_handle::query_name);
 
             Value torrentVal;
@@ -145,7 +145,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
         std::string cwd(boost::filesystem::current_path().string());
         std::vector<libtorrent::torrent_handle> torrents = m_torrentManager->getTorrents();
 
-        for (libtorrent::torrent_handle torrent : torrents) {
+        for (const libtorrent::torrent_handle & torrent : torrents) {
             libtorrent::torrent_status status = torrent.status(libtorrent::torrent_handle::query_save_path | libtorrent::torrent_handle::query_name);
 
             std::string torrentPath = status.save_path + '/' + status.name;
@@ -166,9 +166,9 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                 std::shared_ptr<const libtorrent::torrent_info> torrent_info = torrent_handle.torrent_file();
                 std::vector<libtorrent::announce_entry> trackers = torrent_info->trackers();
 
-                for (libtorrent::announce_entry tracker : trackers) {
+                for (const libtorrent::announce_entry& tracker : trackers) {
                     
-                    for (libtorrent::announce_endpoint endpoint : tracker.endpoints) {
+                    for (const libtorrent::announce_endpoint& endpoint : tracker.endpoints) {
                         Value trackerVal;
                         trackerVal.SetObject();
                         
