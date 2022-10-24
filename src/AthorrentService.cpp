@@ -95,8 +95,8 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
 
             torrentVal.AddMember("name", Value(status.name, allocator).Move(), allocator);
 
-            if (status.paused) {
-                if (torrent.is_seed() && !torrent.get_torrent_info().priv()) {
+            if (torrent.flags() & lt::torrent_flags::paused) {
+                if ((torrent.flags() & lt::torrent_flags::seed_mode) && !torrent.torrent_file()->priv()) {
                     torrentVal.AddMember("state", "disabled", allocator);
                 } else {
                     torrentVal.AddMember("state", "paused", allocator);
@@ -117,7 +117,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                 torrentVal.AddMember("state", "checking_resume_data", allocator);
             }
 
-            torrentVal.AddMember("paused", status.paused, allocator);
+            torrentVal.AddMember("paused", !!(torrent.flags() & lt::torrent_flags::paused), allocator);
             torrentVal.AddMember("total_payload_download", Value(std::to_string(status.total_payload_download), allocator).Move(), allocator);
             torrentVal.AddMember("total_payload_upload", Value(std::to_string(status.total_payload_upload), allocator).Move(), allocator);
             torrentVal.AddMember("size", Value(std::to_string(status.total_wanted), allocator).Move(), allocator);

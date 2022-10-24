@@ -121,7 +121,7 @@ bool TorrentManager::pauseTorrent(string hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
     if (torrent.is_valid()) {
-        torrent.auto_managed(false);
+        torrent.unset_flags(lt::torrent_flags::auto_managed);
         torrent.pause(lt::torrent_handle::graceful_pause);
     } else {
         return false;
@@ -133,9 +133,9 @@ bool TorrentManager::pauseTorrent(string hash) {
 bool TorrentManager::resumeTorrent(string hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
-    if (torrent.is_valid() && (!torrent.is_seed() || torrent.get_torrent_info().priv())) {
+    if (torrent.is_valid() && (!(torrent.flags() & lt::torrent_flags::seed_mode) || torrent.torrent_file()->priv())) {
         torrent.resume();
-        torrent.auto_managed(true);
+        torrent.set_flags(lt::torrent_flags::auto_managed);
     } else {
         return false;
     }
@@ -197,7 +197,7 @@ string TorrentManager::addTorrentFromMagnet(string uri) {
 
     parameters.url = uri;
     parameters.save_path = m_filesPath;
-    parameters.flags = lt::torrent_flags::default_flags | lt::add_torrent_params::flag_duplicate_is_error;
+    parameters.flags = lt::torrent_flags::default_flags | lt::torrent_flags::duplicate_is_error;
     
     try {
         lt::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);

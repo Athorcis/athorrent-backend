@@ -91,8 +91,8 @@ void AlertManager::handleTorrentFinishedAlert(lt::torrent_finished_alert * alert
     });
     
     // the torrent is from a public tracker we pause it
-    if (!handle.get_torrent_info().priv()) {
-        handle.auto_managed(false);
+    if (!handle.torrent_file()->priv()) {
+        handle.unset_flags(lt::torrent_flags::auto_managed);
         handle.pause(lt::torrent_handle::graceful_pause);
     }
 
