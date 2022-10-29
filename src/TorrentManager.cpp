@@ -164,11 +164,13 @@ string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) 
     string hex = bin2hex(hash.to_string());
     bool resumeDataLoaded = false;
 
-    lt::add_torrent_params parameters;
-
     if (!hasTorrent(hash)) {
         if (resumeData) {
-            parameters = m_resumeDataManager->loadResumeData(hex, resumeDataLoaded);
+            lt::add_torrent_params parameters = m_resumeDataManager->loadResumeData(hex, resumeDataLoaded);
+
+            if (resumeDataLoaded) {
+                m_session.async_add_torrent(std::move(parameters));
+            }
         }
 
         if (!resumeDataLoaded) {
@@ -176,11 +178,14 @@ string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) 
                 fs::copy_file(path, m_torrentsPath + "/" + hex + ".torrent");
             }
 
+            lt::add_torrent_params parameters;
+
             parameters.ti = std::shared_ptr<lt::torrent_info>(torrentInfo);
             parameters.save_path = m_filesPath;
+
+            m_session.async_add_torrent(std::move(parameters));
         }
 
-        m_session.async_add_torrent(std::move(parameters));
         
         return hex;
     } else {
