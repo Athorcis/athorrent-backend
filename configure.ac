@@ -65,7 +65,7 @@ AS_IF([test -z "$BOOST_THREAD_LIB"],
 AS_ECHO
 AS_ECHO "Checking for libtorrent:"
 CPPFLAGS_SAVED="$CPPFLAGS"
-CPPFLAGS="-std=c++11 $CPPFLAGS"
+CPPFLAGS="-std=c++14 $CPPFLAGS"
 AC_CHECK_HEADER([libtorrent/session_handle.hpp], [], [
     AC_MSG_ERROR(["libtorrent library not found"])
 ])
