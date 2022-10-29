@@ -109,8 +109,13 @@ int main(int argc, char * argv[])
         exit(EXIT_SUCCESS);
     });
 
-    service.start();
-    ioService.run();
+    try {
+        service.start();
+        ioService.run();
+    }
+    catch (const std::exception & except) {
+        std::cerr << except.what() << std::endl << boost::stacktrace::stacktrace();
+    }
 
 	return EXIT_SUCCESS;
 }
