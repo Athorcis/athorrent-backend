@@ -9,6 +9,7 @@
 #include <boost/program_options/errors.hpp>
 #include <csignal>
 #include <boost/stacktrace.hpp>
+#include <fstream>
 
 #include "AthorrentService.h"
 #include "TorrentManager.h"
@@ -30,6 +31,18 @@ int main(int argc, char * argv[])
 
     boost::program_options::positional_options_description p;
     p.add("user", 1);
+
+    if (boost::filesystem::exists("./backtrace.dump")) {
+        // there is a backtrace
+        std::ifstream ifs("./backtrace.dump");
+
+        boost::stacktrace::stacktrace st = boost::stacktrace::stacktrace::from_dump(ifs);
+        std::cout << "Previous run crashed:\n" << st << std::endl;
+
+        // cleaning up
+        ifs.close();
+        boost::filesystem::remove("./backtrace.dump");
+    }
 
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()
