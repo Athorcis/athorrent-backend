@@ -28,6 +28,8 @@ class JsonClient {
         void send(const JsonResponse * response);
 
         void handleRequest(const JsonRequest * request);
+
+        void sendResponseAndDisconnect(const JsonResponse * response);
 };
 
 #include "../src/JsonClient.cpp"

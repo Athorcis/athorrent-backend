@@ -2,6 +2,9 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <iostream>
+#include "BadJsonRequestException.h"
+#include "JsonClient.h"
+
 
 template<typename ServerSocketType, typename ClientSocketType>
 JsonClient<ServerSocketType, ClientSocketType>::JsonClient(JsonServerType * server, ClientSocketType * clientSocket) : m_server(server), m_clientSocket(clientSocket) {
@@ -40,9 +43,23 @@ void JsonClient<ServerSocketType, ClientSocketType>::recv() {
     } while (rawRequest[rawRequest.size() - 1] != '\n');
 
     if (rawRequest.size()) {
-        handleRequest(new JsonRequest(rawRequest));
+        try {
+            handleRequest(new JsonRequest(rawRequest));
+        }
+        catch (const BadJsonRequestException & e) {
+
+            auto * response = new JsonResponse();
+            response->setError(std::string("bad request: ") + e.what());
+
+            sendResponseAndDisconnect(response);
+        }
     } else {
-        std::cerr << "request not received" << std::endl;
+        std::cerr << "empty request received" << std::endl;
+
+        auto * response = new JsonResponse();
+        response->setError(std::string("bad request: empty request received"));
+
+        sendResponseAndDisconnect(response);
     }
 }
 
@@ -79,6 +96,11 @@ void JsonClient<ServerSocketType, ClientSocketType>::handleRequest(const JsonReq
         }
     }
 
+    sendResponseAndDisconnect(response);
+}
+
+template<typename ServerSocketType, typename ClientSocketType>
+void JsonClient<ServerSocketType, ClientSocketType>::sendResponseAndDisconnect(const JsonResponse *response) {
     send(response);
     delete response;
 
