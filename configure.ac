@@ -50,6 +50,14 @@ AX_BOOST_FILESYSTEM()
 AS_IF([test -z "$BOOST_FILESYSTEM_LIB"],
       [AC_MSG_ERROR(Boost.Filesystem library not found. Try using --with-boost-filesystem=lib)])
 
+AX_BOOST_STACKTRACE()
+AS_IF([test -z "$BOOST_STACKTRACE_LIB"],
+      [AC_MSG_ERROR(Boost.Stacktrace library not found. Try using --with-boost-stacktrace=lib)])
+
+AS_IF([test "$(expr "$BOOST_STACKTRACE_LIB" : ".*\(backtrace\).*")" = "backtrace" ], [
+    LDFLAGS="$LDAFLAGS -ldl -lbacktrace"
+])
+
 AX_BOOST_THREAD()
 AS_IF([test -z "$BOOST_THREAD_LIB"],
       [AC_MSG_ERROR(Boost.Thread library not found. Try using --with-boost-thread=lib)])

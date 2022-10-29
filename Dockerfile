@@ -38,6 +38,7 @@ RUN set -ex ;\
     apt-get install -y --no-install-recommends \
       libboost-filesystem-dev \
       libboost-program-options-dev \
+      libboost-stacktrace-dev \
       libboost-thread-dev
 
 COPY . dist
@@ -45,7 +46,7 @@ COPY . dist
 RUN set -ex ;\
     cd dist ;\
     autoreconf -i ;\
-    ./configure CXXFLAGS="-std=c++14" ;\
+    ./configure --with-boost-stacktrace=boost_stacktrace_backtrace CXXFLAGS="-std=c++14" ;\
     make -j $(nproc)
 
 FROM debian:11.5-slim
@@ -57,6 +58,7 @@ RUN set -ex ;\
         libboost-filesystem1.74.0 \
         libboost-program-options1.74.0 \
         libboost-random1.74.0 \
+        libboost-stacktrace1.74.0 \
         libboost-system1.74.0 \
         libboost-thread1.74.0 \
         socat ;\

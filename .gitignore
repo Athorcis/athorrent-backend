@@ -1,5 +1,4 @@
 /.idea/
-!/m4/ax_boost_*
 
 *.o
 *.exe
@@ -10,6 +9,8 @@
 *.deps
 *.cache
 *.dirstamp
+
+!/m4/ax_boost_*
 
 config.status
 configure
