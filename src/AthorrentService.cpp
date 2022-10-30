@@ -88,7 +88,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             torrentVal.AddMember("name", Value(status.name, allocator).Move(), allocator);
 
             if (torrent.flags() & lt::torrent_flags::paused) {
-                if ((torrent.flags() & lt::torrent_flags::seed_mode) && !torrent.torrent_file()->priv()) {
+                if (status.state == libtorrent::torrent_status::seeding && !torrent.torrent_file()->priv()) {
                     torrentVal.AddMember("state", "disabled", allocator);
                 } else {
                     torrentVal.AddMember("state", "paused", allocator);

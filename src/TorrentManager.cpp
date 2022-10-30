@@ -131,7 +131,9 @@ bool TorrentManager::pauseTorrent(const string & hash) {
 bool TorrentManager::resumeTorrent(const string & hash) {
     lt::torrent_handle torrent = getTorrent(hash);
 
-    if (torrent.is_valid() && (!(torrent.flags() & lt::torrent_flags::seed_mode) || torrent.torrent_file()->priv())) {
+    libtorrent::torrent_status status = torrent.status(libtorrent::torrent_handle::query_name);
+
+    if (torrent.is_valid() && !(status.state == libtorrent::torrent_status::seeding && torrent.torrent_file()->priv())) {
         torrent.resume();
         torrent.set_flags(lt::torrent_flags::auto_managed);
     } else {
