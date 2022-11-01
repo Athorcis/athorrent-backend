@@ -15,7 +15,7 @@ jobs:
     docker:
       - image: cimg/base:stable
         auth:
-          username: $DOCUKERHUB_USERNAME
+          username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
 
     # Add steps to the job
@@ -24,12 +24,16 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: docker build -t $IMAGE_NAME .
+      - run:
+          name: Build Docker Image
+          command: docker build -t $IMAGE_NAME .
       - when:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
-            - run: docker push $IMAGE_NAME:latest
+            - run:
+                name: Publish Docker Image to Docker Hub
+                command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin && docker push $IMAGE_NAME:latest
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
