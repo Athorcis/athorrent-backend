@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Athorcis/athorrent-backend.svg?branch=master)](https://travis-ci.org/Athorcis/athorrent-backend)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Athorcis/athorrent-backend/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/Athorcis/athorrent-backend/tree/master)
 
 # athorrent-backend
 A lightweight seedbox backend
