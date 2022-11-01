@@ -6,6 +6,7 @@ RUN set -ex ;\
       autoconf \
       automake \
       ca-certificates \
+      cmake \
       git \
       g++ \
       libboost-chrono-dev \
@@ -17,22 +18,17 @@ RUN set -ex ;\
       pkg-config
 
 RUN set -ex ;\
-    git clone --depth 1 --branch v1.2.18 https://github.com/arvidn/libtorrent ;\
+    git clone --recurse-submodules --depth 1 --branch v2.0.8 https://github.com/arvidn/libtorrent ;\
     cd libtorrent ;\
-    ./autotool.sh ;\
-    ./configure ;\
-    make -j $(nproc) ;\
-    make install
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14 . ;\
+    cmake --build . -- -j $(nproc) ;\
+    cmake --install .
 
 RUN set -ex ;\
-    apt-get install -y --no-install-recommends \
-      cmake ;\
     git clone https://github.com/Tencent/rapidjson/ ;\
     cd rapidjson ;\
     cmake . ;\
-    make install ;\
-    apt-get remove --purge -y \
-      cmake
+    cmake --install .
 
 RUN set -ex ;\
     apt-get install -y --no-install-recommends \
@@ -67,7 +63,7 @@ RUN set -ex ;\
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
 COPY --from=build /dist/src/athorrent-backend /usr/local/bin/athorrent-backend
-COPY --from=build /usr/local/lib/libtorrent-rasterbar.so.10 /usr/local/lib/libtorrent-rasterbar.so.10
+COPY --from=build /usr/local/lib/libtorrent-rasterbar.so.2.0 /usr/local/lib/libtorrent-rasterbar.so.2.0
 
 ENTRYPOINT ["/usr/local/bin/athorrent-backend"]
 
