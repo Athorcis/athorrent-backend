@@ -25,16 +25,15 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
-        name: Image build
-        command: docker build -t $IMAGE_NAME .
+          name: Build Docker Image
+          command: docker build -t $IMAGE_NAME .
       - when:
-          name:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - run:
-              name: Deploy image
-              command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin && docker push $IMAGE_NAME:latest
+                name: Publish Docker Image to Docker Hub
+                command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin && docker push $IMAGE_NAME:latest
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
