@@ -1,5 +1,5 @@
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
 #include <iostream>
 #include "BadJsonRequestException.h"
