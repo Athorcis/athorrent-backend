@@ -1,4 +1,4 @@
-FROM debian:11.5-slim AS build
+FROM debian:12.1-slim AS build
 
 RUN set -ex ;\
     apt-get update ;\
@@ -18,7 +18,7 @@ RUN set -ex ;\
       pkg-config
 
 RUN set -ex ;\
-    git clone --recurse-submodules --depth 1 --branch v2.0.8 https://github.com/arvidn/libtorrent ;\
+    git clone --recurse-submodules --depth 1 --branch v2.0.9 https://github.com/arvidn/libtorrent ;\
     cd libtorrent ;\
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14 . ;\
     cmake --build . -- -j $(nproc) ;\
@@ -45,7 +45,7 @@ RUN set -ex ;\
     ./configure --with-boost-stacktrace=boost_stacktrace_backtrace CXXFLAGS="-std=c++14" ;\
     make -j $(nproc)
 
-FROM debian:11.5-slim
+FROM debian:12.1-slim
 
 RUN set -ex ;\
     apt-get update ;\
