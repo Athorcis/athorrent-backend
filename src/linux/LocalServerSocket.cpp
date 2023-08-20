@@ -16,7 +16,7 @@ LocalServerSocket::LocalServerSocket(const std::string & path) : AbstractServerS
     strcpy(tmp, m_path.c_str());
 
     mkdir(dirname(tmp), 0755);
-    delete tmp;
+    delete[] tmp;
 
     address.sun_family = AF_UNIX;
     strcpy(address.sun_path, m_path.c_str());
