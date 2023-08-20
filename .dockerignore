@@ -17,3 +17,6 @@ configure
 libtool
 Makefile
 Makefile.in
+
+CMakeLists.txt
+cmake-build-debug

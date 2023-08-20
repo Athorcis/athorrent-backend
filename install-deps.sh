@@ -1,15 +1,16 @@
 #!/bin/sh
 
-git clone -b libtorrent-1_2_6 https://github.com/arvidn/libtorrent
-cd libtorrent
-./bootstrap.sh --prefix=/usr CXXFLAGS="-std=c++11"
-make
-sudo make install
-cd ..
+(
+  git clone --recurse-submodules --depth 1 --branch v2.0.8 https://github.com/arvidn/libtorrent
+  cd libtorrent
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14 .
+  cmake --build .
+  cmake --install .
+)
 
-wget https://github.com/Tencent/rapidjson/archive/v1.1.0.tar.gz -O rapidjson-1.1.0.tar.gz
-tar -xzvf rapidjson-1.1.0.tar.gz
-cd rapidjson-1.1.0
-cmake .
-sudo make install
-cd ..
+(
+  git clone https://github.com/Tencent/rapidjson/
+  cd rapidjson
+  cmake .
+  cmake --install .
+)

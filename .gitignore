@@ -19,3 +19,5 @@ build-aux
 libtool
 
 *.log
+
+/cmake-build-debug/
