@@ -125,7 +125,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             torrentVal.AddMember("num_incomplete", status.num_incomplete, allocator);
             torrentVal.AddMember("list_seeds", status.list_seeds, allocator);
             torrentVal.AddMember("list_peers", status.list_peers, allocator);
-            torrentVal.AddMember("hash", Value(bin2hex(status.info_hash.to_string()), allocator).Move(), allocator);
+            torrentVal.AddMember("hash", Value(bin2hex(status.info_hashes.get_best().to_string()), allocator).Move(), allocator);
 
             data.PushBack(torrentVal, allocator);
         }
@@ -164,11 +164,13 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                     for (const libtorrent::announce_endpoint& endpoint : tracker.endpoints) {
                         Value trackerVal;
                         trackerVal.SetObject();
-                        
+
+                        const libtorrent::announce_infohash & announceInfohash = endpoint.info_hashes.at(0);
+
                         trackerVal.AddMember("id", Value(tracker.trackerid, allocator).Move(), allocator);
                         trackerVal.AddMember("url", Value(tracker.url, allocator).Move(), allocator);
-                        trackerVal.AddMember("peers", endpoint.scrape_complete + endpoint.scrape_incomplete, allocator);
-                        trackerVal.AddMember("message", Value(endpoint.message, allocator).Move(), allocator);
+                        trackerVal.AddMember("peers", announceInfohash.scrape_complete + announceInfohash.scrape_incomplete, allocator);
+                        trackerVal.AddMember("message", Value(announceInfohash.message, allocator).Move(), allocator);
 
                         data.PushBack(trackerVal, allocator);
                     }
