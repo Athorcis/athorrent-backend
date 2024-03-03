@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include "ResumeDataManager.h"
 #include "AlertManager.h"
+#include "JsonRequestFailedException.h"
 
 #include <boost/filesystem.hpp>
 #include <libtorrent/bencode.hpp>
@@ -201,8 +202,12 @@ string TorrentManager::addTorrentFromMagnet(const string & uri) {
     cout << "loadTorrentFromMagnet " << uri << endl;
 
     lt::error_code errorCode;
+    lt::add_torrent_params parameters = lt::parse_magnet_uri(uri, errorCode);
 
-    lt::add_torrent_params parameters = lt::parse_magnet_uri(uri);
+    if (errorCode.failed()) {
+        cout << "INVALID_MAGNET_URI: " << errorCode.message() << endl;
+        throw JsonRequestFailedException("INVALID_MAGNET_URI", errorCode.message());
+    }
 
     parameters.save_path = m_filesPath;
     parameters.flags |= lt::torrent_flags::duplicate_is_error;

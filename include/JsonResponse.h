@@ -15,6 +15,7 @@ class JsonResponse
 
         void setSuccess(const std::string & message);
         void setError(const std::string & message);
+        void setError(const std::string & message, const std::string & id);
 
         rapidjson::Value & getData();
 

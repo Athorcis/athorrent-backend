@@ -4,6 +4,7 @@
 #include <iostream>
 #include "BadJsonRequestException.h"
 #include "JsonClient.h"
+#include "JsonRequestFailedException.h"
 
 
 template<typename ServerSocketType, typename ClientSocketType>
@@ -91,7 +92,11 @@ void JsonClient<ServerSocketType, ClientSocketType>::handleRequest(const JsonReq
         try {
             response = m_server->handleRequest(request);
         }
-        catch (std::exception & except) {
+        catch (const JsonRequestFailedException & except) {
+            response = new JsonResponse();
+            response->setError(except.what(), except.getId());
+        }
+        catch (const std::exception & except) {
             response = new JsonResponse();
             response->setError(except.what());
         }

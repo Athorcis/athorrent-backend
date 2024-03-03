@@ -12,6 +12,7 @@ add_executable(athorrent_backend
         src/AthorrentService.cpp
         src/BadJsonRequestException.cpp
         src/JsonRequest.cpp
+        src/JsonRequestFailedException.cpp
         src/JsonResponse.cpp
         src/LocalClientSocket.cpp
         src/LocalServerSocket.cpp

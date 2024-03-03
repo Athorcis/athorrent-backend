@@ -40,6 +40,15 @@ void JsonResponse::setError(const string & message)
     m_doc["data"].SetString(message, m_doc.GetAllocator());
 }
 
+void JsonResponse::setError(const string &message, const string &id)
+{
+    setStatus("error");
+
+    m_doc["data"].SetObject();
+    m_doc["data"].AddMember("message", message, m_doc.GetAllocator());
+    m_doc["data"].AddMember("id", id, m_doc.GetAllocator());
+}
+
 Value & JsonResponse::getData()
 {
     return m_doc["data"];
