@@ -94,7 +94,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                     torrentVal.AddMember("state", "paused", allocator);
                 }
             } else if (status.state == libtorrent::torrent_status::checking_files) {
-                torrentVal.AddMember("state", "cheking_files", allocator);
+                torrentVal.AddMember("state", "checking_files", allocator);
             } else if (status.state == libtorrent::torrent_status::downloading_metadata) {
                 torrentVal.AddMember("state", "downloading_metadata", allocator);
             } else if (status.state == libtorrent::torrent_status::downloading) {
