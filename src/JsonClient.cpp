@@ -88,7 +88,14 @@ void JsonClient<ServerSocketType, ClientSocketType>::handleRequest(const JsonReq
         response = new JsonResponse();
         response->setError("bad request");
     } else {
-        response = m_server->handleRequest(request);
+        try {
+            response = m_server->handleRequest(request);
+        }
+        catch (std::exception & except) {
+            response = new JsonResponse();
+            response->setError(except.what());
+        }
+
         delete request;
         
         if (response->getStatus().empty()) {
