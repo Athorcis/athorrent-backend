@@ -83,7 +83,7 @@ int main(int argc, char * argv[])
     }
 
 #ifdef _WIN32
-    std::string address = "\\\\.\\pipe\\athorrentd\\sockets\\" + port + ".sck";
+    std::string address = R"(\\.\pipe\athorrentd\sockets\)" + port + ".sck";
 #elif defined __linux__
     std::string address = "athorrentd.sck";
 #endif

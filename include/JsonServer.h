@@ -11,7 +11,7 @@ class JsonServer {
     typedef JsonServer<ServerSocketType, ClientSocketType> JsonServerType;
 
     public:
-        JsonServer(const std::string & address);
+        explicit JsonServer(const std::string & address);
         virtual ~JsonServer();
 
         void start();

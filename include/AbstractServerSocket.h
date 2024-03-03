@@ -6,8 +6,8 @@
 
 class AbstractServerSocket : public virtual AbstractSocket {
     public:
-        AbstractServerSocket(const std::string & path) : m_path(path) {}
-        virtual ~AbstractServerSocket() {}
+        explicit AbstractServerSocket(const std::string & path) : m_path(path) {}
+        ~AbstractServerSocket() override = default;
 
         virtual AbstractClientSocket * accept() = 0;
 

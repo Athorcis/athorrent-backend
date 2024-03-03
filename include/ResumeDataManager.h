@@ -19,7 +19,7 @@
 class ResumeDataManager
 {
     public:
-        ResumeDataManager(TorrentManager & torrentManager);
+        explicit ResumeDataManager(TorrentManager & torrentManager);
 
         void start(boost::asio::io_service & ioService);
         void reset();
@@ -46,7 +46,7 @@ class ResumeDataManager
         boost::mutex m_resumeDataMutex;
         boost::condition_variable m_resumeDataCondition;
 
-        boost::asio::deadline_timer * m_timer;
+        boost::asio::deadline_timer * m_timer = nullptr;
 
         void tryReleaseLock();
 };

@@ -7,11 +7,11 @@
 class LocalSocket : public virtual AbstractSocket {
     public:
         LocalSocket();
-        LocalSocket(HANDLE namedPipe);
-        ~LocalSocket();
+        explicit LocalSocket(HANDLE namedPipe);
+        ~LocalSocket() override;
 
-        void shutdown();
-        void close();
+        void shutdown() override;
+        void close() override;
 
     protected:
         HANDLE m_namedPipe;

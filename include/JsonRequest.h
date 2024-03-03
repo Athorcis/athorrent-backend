@@ -7,7 +7,7 @@
 class JsonRequest : protected rapidjson::Document
 {
     public:
-        JsonRequest(const std::string & buffer);
+        explicit JsonRequest(const std::string & buffer);
 
         std::string getAction() const;
 

@@ -6,10 +6,10 @@
 
 class AbstractClientSocket : public virtual AbstractSocket {
     public:
-        virtual ~AbstractClientSocket() {}
+        ~AbstractClientSocket() override = default;
 
         virtual ssize_t read(char * buffer, size_t size) = 0;
         virtual ssize_t write(const char * buffer, size_t size) = 0;
 };
 
-#endif /* ABSTRACT_LOCAL_CLIENT_SOCKET */
+#endif /* ABSTRACT_LOCAL_CLIENT_SOCKET_H */

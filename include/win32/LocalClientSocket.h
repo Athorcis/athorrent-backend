@@ -6,10 +6,10 @@
 
 class LocalClientSocket : public virtual LocalSocket, public virtual AbstractClientSocket {
     public:
-        LocalClientSocket(HANDLE namedPipe);
+        explicit LocalClientSocket(HANDLE namedPipe);
 
-        ssize_t read(char * buffer, size_t size);
-        ssize_t write(const char * buffer, size_t size);
+        ssize_t read(char * buffer, size_t size) override;
+        ssize_t write(const char * buffer, size_t size) override;
 };
 
 #endif /* LOCAL_CLIENT_SOCKET_H */

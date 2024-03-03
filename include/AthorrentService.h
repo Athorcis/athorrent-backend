@@ -10,7 +10,7 @@ class AthorrentService : public JsonServer<LocalServerSocket, LocalClientSocket>
     public:
         AthorrentService(const std::string & address, TorrentManager * torrentManager);
 
-        JsonResponse * handleRequest(const JsonRequest * request);
+        JsonResponse * handleRequest(const JsonRequest * request) override;
 
     private:
         TorrentManager * m_torrentManager;

@@ -10,7 +10,7 @@
 class AlertManager
 {
     public:
-        AlertManager(TorrentManager & torrentManager);
+        explicit AlertManager(TorrentManager & torrentManager);
 
         void start();
         void run();

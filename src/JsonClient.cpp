@@ -43,24 +43,25 @@ void JsonClient<ServerSocketType, ClientSocketType>::recv() {
         }
     } while (rawRequest[rawRequest.size() - 1] != '\n');
 
-    if (rawRequest.size()) {
+    if (rawRequest.empty()) {
+        std::cerr << "empty request received" << std::endl;
+
+        auto *response = new JsonResponse();
+        response->setError(std::string("bad request: empty request received"));
+
+        sendResponseAndDisconnect(response);
+    }
+    else {
         try {
             handleRequest(new JsonRequest(rawRequest));
         }
-        catch (const BadJsonRequestException & e) {
+        catch (const BadJsonRequestException &e) {
 
-            auto * response = new JsonResponse();
+            auto *response = new JsonResponse();
             response->setError(std::string("bad request: ") + e.what());
 
             sendResponseAndDisconnect(response);
         }
-    } else {
-        std::cerr << "empty request received" << std::endl;
-
-        auto * response = new JsonResponse();
-        response->setError(std::string("bad request: empty request received"));
-
-        sendResponseAndDisconnect(response);
     }
 }
 
