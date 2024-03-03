@@ -1,9 +1,9 @@
 #include "win32/LocalSocket.h"
 
-LocalSocket::LocalSocket() : m_namedPipe(NULL), m_ioThread(NULL) {
+LocalSocket::LocalSocket() : m_namedPipe(nullptr), m_ioThread(nullptr) {
 }
 
-LocalSocket::LocalSocket(HANDLE namedPipe) : m_namedPipe(namedPipe), m_ioThread(NULL) {
+LocalSocket::LocalSocket(HANDLE namedPipe) : m_namedPipe(namedPipe), m_ioThread(nullptr) {
 }
 
 LocalSocket::~LocalSocket() {
@@ -13,7 +13,7 @@ LocalSocket::~LocalSocket() {
 void LocalSocket::shutdown() {
     if (m_ioThread) {
         CancelSynchronousIo(m_ioThread);
-        m_ioThread = NULL;
+        m_ioThread = nullptr;
     }
 }
 
@@ -21,6 +21,6 @@ void LocalSocket::close() {
     if (m_namedPipe) {
         DisconnectNamedPipe(m_namedPipe);
         CloseHandle(m_namedPipe);
-        m_namedPipe = NULL;
+        m_namedPipe = nullptr;
     }
 }

@@ -34,9 +34,9 @@ void LocalServerSocket::close() {
 }
 
 AbstractClientSocket * LocalServerSocket::accept() {
-    LocalClientSocket * clientSocket = NULL;
+    LocalClientSocket * clientSocket = nullptr;
 
-    int socket = ::accept(m_socket, NULL, NULL);
+    int socket = ::accept(m_socket, nullptr, nullptr);
 
     if (socket > -1) {
         clientSocket = new LocalClientSocket(socket);

@@ -84,7 +84,7 @@ template<typename ServerSocketType, typename ClientSocketType>
 void JsonClient<ServerSocketType, ClientSocketType>::handleRequest(const JsonRequest * request) {
     JsonResponse * response;
 
-    if (request == NULL) {
+    if (request == nullptr) {
         response = new JsonResponse();
         response->setError("bad request");
     } else {

@@ -53,5 +53,5 @@ void JsonServer<ServerSocketType, ClientSocketType>::removeClient(JsonClientType
 
 template<typename ServerSocketType, typename ClientSocketType>
 JsonResponse * JsonServer<ServerSocketType, ClientSocketType>::handleRequest(const JsonRequest * request) {
-    return NULL;
+    return nullptr;
 }
