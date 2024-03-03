@@ -1,10 +1,10 @@
 #include "AlertManager.h"
 #include "ResumeDataManager.h"
 #include "Json.h"
-#include "Utils.h"
 
 #include <vector>
 #include <iostream>
+#include <boost/algorithm/hex.hpp>
 #include <boost/thread.hpp>
 #include <libtorrent/torrent_info.hpp>
 
@@ -100,7 +100,7 @@ void AlertManager::handleTorrentFinishedAlert(const lt::torrent_finished_alert *
         lt::torrent_status status = handle.status(lt::torrent_handle::query_save_path | lt::torrent_handle::query_name);
 
         JSON_OBJECT
-        JSON_ADD_STRING("hash", bin2hex(handle.info_hash().to_string()))
+        JSON_ADD_STRING("hash", boost::algorithm::hex(handle.info_hash().to_string()))
         JSON_ADD_STRING("path", status.save_path + '/' + status.name)
         JSON_WRITE(json)
 

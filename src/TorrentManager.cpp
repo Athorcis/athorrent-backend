@@ -1,9 +1,9 @@
 #include "TorrentManager.h"
-#include "Utils.h"
 #include "ResumeDataManager.h"
 #include "AlertManager.h"
 #include "JsonRequestFailedException.h"
 
+#include <boost/algorithm/hex.hpp>
 #include <boost/filesystem.hpp>
 #include <libtorrent/bencode.hpp>
 #include <libtorrent/create_torrent.hpp>
@@ -81,7 +81,7 @@ void TorrentManager::createTorrent(const lt::torrent_handle & handle)
         lt::create_torrent createTorrent(*info);
         lt::entry entry = createTorrent.generate();
 
-        string path = m_torrentsPath + "/" + bin2hex(info->info_hash().to_string()) + ".torrent";
+        string path = m_torrentsPath + "/" + boost::algorithm::hex(info->info_hash().to_string()) + ".torrent";
         writeBencodedTree(path, entry);
     }
 }
@@ -101,7 +101,7 @@ bool TorrentManager::hasTorrent(lt::sha1_hash hash) const {
 }
 
 bool TorrentManager::hasTorrent(const string & hash) const {
-    return hasTorrent(lt::sha1_hash(hex2bin(hash).c_str()));
+    return hasTorrent(lt::sha1_hash(boost::algorithm::unhex(hash).c_str()));
 }
 
 lt::torrent_handle TorrentManager::getTorrent(lt::sha1_hash hash) const {
@@ -109,7 +109,7 @@ lt::torrent_handle TorrentManager::getTorrent(lt::sha1_hash hash) const {
 }
 
 lt::torrent_handle TorrentManager::getTorrent(const string & hash) const {
-    return getTorrent(lt::sha1_hash(hex2bin(hash).c_str()));
+    return getTorrent(lt::sha1_hash(boost::algorithm::unhex(hash).c_str()));
 }
 
 vector<lt::torrent_handle> TorrentManager::getTorrents() {
@@ -164,7 +164,7 @@ string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) 
     auto * torrentInfo = new lt::torrent_info(path, errorCode);
     lt::sha1_hash hash = torrentInfo->info_hash();
 
-    string hex = bin2hex(hash.to_string());
+    string hex = boost::algorithm::hex(hash.to_string());
     bool resumeDataLoaded = false;
 
     if (!hasTorrent(hash)) {
@@ -215,7 +215,7 @@ string TorrentManager::addTorrentFromMagnet(const string & uri) {
     try {
         lt::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
         
-        return bin2hex(torrentHandle.info_hash().to_string());
+        return boost::algorithm::hex(torrentHandle.info_hash().to_string());
     } catch (const std::exception & except) {
         
     }

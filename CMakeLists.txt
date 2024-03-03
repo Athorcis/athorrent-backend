@@ -19,7 +19,6 @@ add_executable(athorrent_backend
         src/LocalSocket.cpp
         src/main.cpp
         src/ResumeDataManager.cpp
-        src/TorrentManager.cpp
-        src/Utils.cpp)
+        src/TorrentManager.cpp)
 
 TARGET_LINK_LIBRARIES(athorrent_backend -ltorrent-rasterbar -lboost_filesystem-mt -lboost_program_options-mt -lboost_stacktrace_windbg-mt -lboost_thread-mt -lws2_32 -lcrypt32 -lwsock32 -lIphlpapi -lcrypto -lssl)

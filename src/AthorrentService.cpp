@@ -1,10 +1,10 @@
 #include "AthorrentService.h"
-#include "Utils.h"
 
 #include <iostream>
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/hex.hpp>
 #include <libtorrent/announce_entry.hpp>
 #include <libtorrent/torrent_info.hpp>
 #include <libtorrent/torrent_status.hpp>
@@ -125,7 +125,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             torrentVal.AddMember("num_incomplete", status.num_incomplete, allocator);
             torrentVal.AddMember("list_seeds", status.list_seeds, allocator);
             torrentVal.AddMember("list_peers", status.list_peers, allocator);
-            torrentVal.AddMember("hash", Value(bin2hex(status.info_hashes.get_best().to_string()), allocator).Move(), allocator);
+            torrentVal.AddMember("hash", Value(boost::algorithm::hex(status.info_hashes.get_best().to_string()), allocator).Move(), allocator);
 
             data.PushBack(torrentVal, allocator);
         }

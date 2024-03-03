@@ -1,10 +1,10 @@
 #include "ResumeDataManager.h"
-#include "Utils.h"
 
 #include <libtorrent/torrent_status.hpp>
 #include <libtorrent/read_resume_data.hpp>
 #include <libtorrent/write_resume_data.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/hex.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -109,7 +109,7 @@ void ResumeDataManager::saveResumeData(const lt::save_resume_data_alert * alert)
 {
     lt::torrent_handle handle = alert->handle;
 
-    string hash = bin2hex(handle.info_hash().to_string());
+    string hash = boost::algorithm::hex(handle.info_hash().to_string());
     string path = m_torrentManager.getResumeDataPath() + '/' + hash + ".fastresume";
 
     std::ofstream of(path, std::ios_base::binary);
