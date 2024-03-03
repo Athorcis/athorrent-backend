@@ -7,7 +7,7 @@ LocalSocket::LocalSocket(HANDLE namedPipe) : m_namedPipe(namedPipe), m_ioThread(
 }
 
 LocalSocket::~LocalSocket() {
-    close();
+    LocalSocket::close();
 }
 
 void LocalSocket::shutdown() {

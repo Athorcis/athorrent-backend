@@ -9,7 +9,7 @@ JsonServer<ServerSocketType, ClientSocketType>::JsonServer(const std::string & a
 
 template<typename ServerSocketType, typename ClientSocketType>
 JsonServer<ServerSocketType, ClientSocketType>::~JsonServer() {
-    stop();
+    JsonServer::stop();
 }
 
 template<typename ServerSocketType, typename ClientSocketType>

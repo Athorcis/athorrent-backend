@@ -10,7 +10,7 @@ LocalSocket::LocalSocket(int socket) : m_socket(socket) {
 }
 
 LocalSocket::~LocalSocket() {
-    close();
+    LocalSocket::close();
 }
 
 void LocalSocket::shutdown() {
