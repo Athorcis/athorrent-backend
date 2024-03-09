@@ -1,7 +1,6 @@
 #include "JsonResponse.h"
 
 #include <rapidjson/writer.h>
-#include <iostream>
 
 using namespace rapidjson;
 using namespace std;
@@ -60,8 +59,6 @@ string JsonResponse::toRawResponse() const {
     m_doc.Accept(writer);
     
     string message = string(buffer.GetString()) + '\n';
-    
-    cout << message << endl;
     
     return message;
 }
