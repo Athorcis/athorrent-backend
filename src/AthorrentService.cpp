@@ -236,7 +236,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                                 state = "NotWorking";
                             }
 
-                            trackerVal.AddMember("error", Value(lastError.what(), allocator).Move(), allocator);
+                            trackerVal.AddMember("error", Value(lastError.message(), allocator).Move(), allocator);
                         }
                         else if (tracker.verified) {
                             state = "Working";
