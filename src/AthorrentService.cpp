@@ -156,24 +156,105 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
             libtorrent::torrent_handle torrent_handle = m_torrentManager->getTorrent(request->getParameter("hash"));
 
             if (torrent_handle.is_valid()) {
-                std::shared_ptr<const libtorrent::torrent_info> torrent_info = torrent_handle.torrent_file();
-                std::vector<libtorrent::announce_entry> trackers = torrent_info->trackers();
+                std::vector<libtorrent::announce_entry> trackers = torrent_handle.trackers();
+
+                libtorrent::info_hash_t hashes = torrent_handle.info_hashes();
+
+                bool hasV1 = hashes.has_v1();
+                bool hasV2 = hashes.has_v2();
 
                 for (const libtorrent::announce_entry& tracker : trackers) {
-                    
-                    for (const libtorrent::announce_endpoint& endpoint : tracker.endpoints) {
-                        Value trackerVal;
-                        trackerVal.SetObject();
+                    std::vector<libtorrent::announce_endpoint> endpoints = tracker.endpoints;
+                    libtorrent::announce_endpoint bestEndpoint;
 
-                        const libtorrent::announce_infohash & announceInfohash = endpoint.info_hashes.at(0);
+                    bool validEndpoint = false;
+                    bool useV2 = false;
 
-                        trackerVal.AddMember("id", Value(tracker.trackerid, allocator).Move(), allocator);
-                        trackerVal.AddMember("url", Value(tracker.url, allocator).Move(), allocator);
-                        trackerVal.AddMember("peers", announceInfohash.scrape_complete + announceInfohash.scrape_incomplete, allocator);
+                    for (const libtorrent::announce_endpoint& endpoint : endpoints) {
+                        if (hasV1) {
+                            const libtorrent::announce_infohash & announceInfohash = endpoint.info_hashes.at(0);
+
+                            if (!announceInfohash.last_error.failed()) {
+                                bestEndpoint = endpoint;
+                                validEndpoint = true;
+                                break;
+                            }
+                        }
+
+                        if (hasV2) {
+                            const libtorrent::announce_infohash & announceInfohash = endpoint.info_hashes.at(1);
+
+                            if (!announceInfohash.last_error.failed()) {
+                                bestEndpoint = endpoint;
+                                validEndpoint = true;
+                                useV2 = true;
+                               break;
+                            }
+                        }
+                    }
+
+                    bool hasEndpoints = true;
+
+                    if (!validEndpoint) {
+                        if (endpoints.empty()) {
+                            hasEndpoints = false;
+                            std::cout << "no endpoint found for tracker " << tracker.url << std::endl;
+                        }
+                        else {
+                            bestEndpoint = endpoints.back();
+                        }
+                    }
+
+                    Value trackerVal;
+                    trackerVal.SetObject();
+
+                    trackerVal.AddMember("id", Value(tracker.trackerid, allocator).Move(), allocator);
+                    trackerVal.AddMember("url", Value(tracker.url, allocator).Move(), allocator);
+
+                    if (hasEndpoints) {
+                        const libtorrent::announce_infohash & announceInfohash = bestEndpoint.info_hashes.at(useV2 ? 1 : 0);
+
+                        trackerVal.AddMember("peers", announceInfohash.scrape_incomplete, allocator);
+                        trackerVal.AddMember("seeds", announceInfohash.scrape_complete, allocator);
                         trackerVal.AddMember("message", Value(announceInfohash.message, allocator).Move(), allocator);
 
-                        data.PushBack(trackerVal, allocator);
+                        std::string state;
+
+                        if (announceInfohash.updating) {
+                            state = "Updating";
+                        }
+                        else if (announceInfohash.fails > 0) {
+                            boost::system::error_code lastError = announceInfohash.last_error;
+
+                            if (lastError.value() == libtorrent::errors::error_code_enum::tracker_failure) {
+                                state = "TrackerError";
+                            }
+                            else if (lastError.value() == libtorrent::errors::error_code_enum::announce_skipped) {
+                                state = "Unreachable";
+                            }
+                            else {
+                                state = "NotWorking";
+                            }
+
+                            trackerVal.AddMember("error", Value(lastError.what(), allocator).Move(), allocator);
+                        }
+                        else if (tracker.verified) {
+                            state = "Working";
+                        }
+                        else {
+                            state = "NotContacted";
+                        }
+
+                        trackerVal.AddMember("state", Value(state, allocator), allocator);
                     }
+                    else {
+                        trackerVal.AddMember("peers", -1, allocator);
+                        trackerVal.AddMember("seeds", -1, allocator);
+                        trackerVal.AddMember("message", "", allocator);
+                        trackerVal.AddMember("state", Value(tracker.verified ? "Working" : "NotContacted", allocator), allocator);
+                    }
+
+                    data.PushBack(trackerVal, allocator);
                 }
             }
 
