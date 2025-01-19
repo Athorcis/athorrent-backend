@@ -100,10 +100,10 @@ HEALTHCHECK --interval=5s --timeout=1s \
 
 FROM final-base AS debug
 
-COPY --from=debug-build /dist/src/athorrent-backend /usr/local/bin/athorrent-backend
+COPY --from=debug-build /project/athorrent-backend /usr/local/bin/athorrent-backend
 COPY --from=debug-build /usr/local/lib/libtorrent-rasterbar.so.2.0 /usr/local/lib/libtorrent-rasterbar.so.2.0
 
 FROM final-base AS release
 
-COPY --from=release-build /dist/src/athorrent-backend /usr/local/bin/athorrent-backend
+COPY --from=release-build /project/athorrent-backend /usr/local/bin/athorrent-backend
 COPY --from=release-build /usr/local/lib/libtorrent-rasterbar.so.2.0 /usr/local/lib/libtorrent-rasterbar.so.2.0

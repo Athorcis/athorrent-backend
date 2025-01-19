@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
 project(athorrent_backend)
 
-set(TARGET_NAME athorrent_backend)
+set(TARGET_NAME athorrent-backend)
 set(CMAKE_CXX_STANDARD 14)
 
 if (WIN32)
