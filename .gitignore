@@ -1,23 +1,5 @@
 /.idea/
 
-*.o
-*.exe
-
-*.m4
-*.in
-*.libs
-*.deps
-*.cache
-*.dirstamp
-
-!/m4/ax_boost_*
-
-config.status
-configure
-Makefile
-build-aux
-libtool
-
 *.log
 
 /cmake-build-debug/

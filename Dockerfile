@@ -1,4 +1,6 @@
-FROM debian:12.5-slim AS build
+FROM debian:12.9-slim AS base
+
+FROM base AS builder
 
 RUN set -ex ;\
     apt-get update ;\
@@ -10,12 +12,40 @@ RUN set -ex ;\
       git \
       g++ \
       libboost-chrono-dev \
+      libboost-filesystem-dev \
+      libboost-program-options-dev \
       libboost-random-dev \
+      libboost-stacktrace-dev \
       libboost-system-dev \
+      libboost-thread-dev \
       libssl-dev \
       libtool \
       make \
       pkg-config
+
+FROM builder AS debug-build
+
+RUN set -ex ;\
+    git clone --recurse-submodules --depth 1 --branch v2.0.10 https://github.com/arvidn/libtorrent ;\
+    cd libtorrent ;\
+    cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=14 . ;\
+    cmake --build . -- -j $(nproc) ;\
+    cmake --install .
+
+RUN set -ex ;\
+    git clone https://github.com/Tencent/rapidjson/ ;\
+    cd rapidjson ;\
+    cmake -DCMAKE_BUILD_TYPE=Debug . ;\
+    cmake --install .
+
+COPY . project
+
+RUN set -ex ;\
+    cd project ;\
+    cmake -DCMAKE_BUILD_TYPE=Debug . ;\
+    cmake --build . -- -j $(nproc)
+
+FROM builder AS release-build
 
 RUN set -ex ;\
     git clone --recurse-submodules --depth 1 --branch v2.0.10 https://github.com/arvidn/libtorrent ;\
@@ -27,25 +57,17 @@ RUN set -ex ;\
 RUN set -ex ;\
     git clone https://github.com/Tencent/rapidjson/ ;\
     cd rapidjson ;\
-    cmake . ;\
+    cmake -DCMAKE_BUILD_TYPE=Release . ;\
     cmake --install .
 
-RUN set -ex ;\
-    apt-get install -y --no-install-recommends \
-      libboost-filesystem-dev \
-      libboost-program-options-dev \
-      libboost-stacktrace-dev \
-      libboost-thread-dev
-
-COPY . dist
+COPY . project
 
 RUN set -ex ;\
-    cd dist ;\
-    autoreconf -i ;\
-    ./configure --with-boost-stacktrace=boost_stacktrace_backtrace CXXFLAGS="-std=c++14" ;\
-    make -j $(nproc)
+    cd project ;\
+    cmake -DCMAKE_BUILD_TYPE=Release . ;\
+    cmake --build . -- -j $(nproc)
 
-FROM debian:12.5-slim
+FROM base AS final-base
 
 RUN set -ex ;\
     apt-get update ;\
@@ -69,12 +91,19 @@ ENV LC_ALL en_US.UTF-8
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
-COPY --from=build /dist/src/athorrent-backend /usr/local/bin/athorrent-backend
-COPY --from=build /usr/local/lib/libtorrent-rasterbar.so.2.0 /usr/local/lib/libtorrent-rasterbar.so.2.0
-
 ENTRYPOINT ["/usr/local/bin/athorrent-backend"]
 
 CMD ["--port", "6881"]
 
 HEALTHCHECK --interval=5s --timeout=1s \
     CMD echo '{"action":"ping","parameters":{}}' | socat - UNIX-CONNECT:/var/lib/athorrent-backend/athorrentd.sck | grep -q '{"status":"success","data":"pong"}'
+
+FROM final-base AS debug
+
+COPY --from=debug-build /dist/src/athorrent-backend /usr/local/bin/athorrent-backend
+COPY --from=debug-build /usr/local/lib/libtorrent-rasterbar.so.2.0 /usr/local/lib/libtorrent-rasterbar.so.2.0
+
+FROM final-base AS release
+
+COPY --from=release-build /dist/src/athorrent-backend /usr/local/bin/athorrent-backend
+COPY --from=release-build /usr/local/lib/libtorrent-rasterbar.so.2.0 /usr/local/lib/libtorrent-rasterbar.so.2.0

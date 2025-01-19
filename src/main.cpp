@@ -90,7 +90,7 @@ int main(int argc, char * argv[])
 
     AthorrentService service(address, &torrentManager);
 
-    boost::asio::io_service ioService;
+    boost::asio::io_context ioService;
     torrentManager.getResumeDataManager().start(ioService);
 
     boost::asio::signal_set signals(ioService, SIGINT, SIGTERM);

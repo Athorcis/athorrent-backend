@@ -8,7 +8,7 @@
 #include <libtorrent/session.hpp>
 #include <libtorrent/entry.hpp>
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/thread/mutex.hpp>
@@ -21,7 +21,7 @@ class ResumeDataManager
     public:
         explicit ResumeDataManager(TorrentManager & torrentManager);
 
-        void start(boost::asio::io_service & ioService);
+        void start(boost::asio::io_context & ioService);
         void reset();
         void stop();
 

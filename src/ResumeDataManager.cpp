@@ -15,7 +15,7 @@ namespace lt = libtorrent;
 
 ResumeDataManager::ResumeDataManager(TorrentManager & torrentManager) : m_torrentManager(torrentManager), m_session(torrentManager.getSession()) {}
 
-void ResumeDataManager::start(boost::asio::io_service & ioService)
+void ResumeDataManager::start(boost::asio::io_context & ioService)
 {
     m_timer = new boost::asio::deadline_timer(ioService, boost::posix_time::seconds(1));
     reset();

@@ -26,14 +26,20 @@ jobs:
           docker_layer_caching: true
       - run:
           name: Build Docker Image
-          command: docker build -t $IMAGE_NAME .
+          command: docker build -t $IMAGE_NAME:debug --target debug .
       - when:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - run:
+                  name: Build Docker Image
+                  command: docker build -t $IMAGE_NAME:release --target release .
+            - run:
                 name: Publish Docker Image to Docker Hub
-                command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin && docker push $IMAGE_NAME:latest
+                command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin && docker push $IMAGE_NAME:debug
+            - run:
+                name: Publish Docker Image to Docker Hub
+                command: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin && docker push $IMAGE_NAME:release
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
