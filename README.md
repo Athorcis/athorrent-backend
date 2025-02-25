@@ -1,4 +1,4 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/Athorcis/athorrent-backend/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/Athorcis/athorrent-backend/tree/master)
+![build](https://github.com/Athorcis/athorrent-backend/actions/workflows/ci.yml/badge.svg)
 
 # athorrent-backend
 A lightweight seedbox backend
