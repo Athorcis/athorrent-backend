@@ -1,3 +1,5 @@
+ARG LIBTORRENT_VERSION=2.0.10
+
 FROM debian:12.9-slim AS base
 
 FROM base AS builder
@@ -25,8 +27,10 @@ RUN set -ex ;\
 
 FROM builder AS debug-build
 
+ARG LIBTORRENT_VERSION
+
 RUN set -ex ;\
-    git clone --recurse-submodules --depth 1 --branch v2.0.10 https://github.com/arvidn/libtorrent ;\
+    git clone --recurse-submodules --depth 1 --branch v$LIBTORRENT_VERSION https://github.com/arvidn/libtorrent ;\
     cd libtorrent ;\
     cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=14 . ;\
     cmake --build . -- -j $(nproc) ;\
@@ -47,8 +51,10 @@ RUN set -ex ;\
 
 FROM builder AS release-build
 
+ARG LIBTORRENT_VERSION
+
 RUN set -ex ;\
-    git clone --recurse-submodules --depth 1 --branch v2.0.10 https://github.com/arvidn/libtorrent ;\
+    git clone --recurse-submodules --depth 1 --branch v$LIBTORRENT_VERSION https://github.com/arvidn/libtorrent ;\
     cd libtorrent ;\
     cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14 . ;\
     cmake --build . -- -j $(nproc) ;\
