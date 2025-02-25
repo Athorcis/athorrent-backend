@@ -43,7 +43,13 @@ void AlertManager::run()
 
 void AlertManager::handleAlert(lt::alert * alert)
 {
-    cout << "alert: " << alert->message() << endl;
+    if (alert == nullptr) {
+        cout << "alert: null" << endl;
+        return;
+    }
+    else {
+        cout << "alert( " << alert->type() << "): " << alert->message() << endl;
+    }
 
     switch (alert->type()) {
         case lt::save_resume_data_alert::alert_type:
