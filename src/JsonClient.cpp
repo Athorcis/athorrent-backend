@@ -15,6 +15,7 @@ JsonClient<ServerSocketType, ClientSocketType>::JsonClient(JsonServerType * serv
 template<typename ServerSocketType, typename ClientSocketType>
 JsonClient<ServerSocketType, ClientSocketType>::~JsonClient() {
     disconnect();
+    delete m_clientSocket;
 }
 
 template<typename ServerSocketType, typename ClientSocketType>
@@ -42,6 +43,8 @@ void JsonClient<ServerSocketType, ClientSocketType>::recv() {
             break;
         }
     } while (rawRequest[rawRequest.size() - 1] != '\n');
+
+    delete[] buffer;
 
     if (rawRequest.empty()) {
         std::cerr << "empty request received" << std::endl;

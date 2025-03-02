@@ -49,6 +49,7 @@ void JsonServer<ServerSocketType, ClientSocketType>::stop() {
 template<typename ServerSocketType, typename ClientSocketType>
 void JsonServer<ServerSocketType, ClientSocketType>::removeClient(JsonClientType * client) {
     m_clients.erase(client);
+    delete client;
 }
 
 template<typename ServerSocketType, typename ClientSocketType>
