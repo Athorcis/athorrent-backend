@@ -48,7 +48,7 @@ void AlertManager::handleAlert(lt::alert * alert)
         return;
     }
     else {
-        cout << "alert( " << alert->type() << "): " << alert->message() << endl;
+        cout << "alert(" << alert->type() << "): " << alert->message() << endl;
     }
 
     switch (alert->type()) {
