@@ -21,7 +21,7 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
     
     const std::string & action = request->getAction();
 
-    std::cout << "REQUEST: " << action << std::endl;
+    //std::cout << "REQUEST: " << action << std::endl;
 
     if (action == "ping") {
         response->setSuccess("pong");
