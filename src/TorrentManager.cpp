@@ -162,6 +162,12 @@ string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) 
     cout << "loadTorrentFromFile " << path << endl;
     lt::error_code errorCode;
     auto * torrentInfo = new lt::torrent_info(path, errorCode);
+
+    if (errorCode.failed()) {
+        cout << "INVALID_TORRENT_FILE: " << errorCode.message() << endl;
+        throw JsonRequestFailedException("INVALID_TORRENT_FILE", errorCode.message());
+    }
+
     lt::sha1_hash hash = torrentInfo->info_hash();
 
     string hex = boost::algorithm::hex(hash.to_string());
