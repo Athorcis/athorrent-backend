@@ -223,10 +223,9 @@ string TorrentManager::addTorrentFromMagnet(const string & uri) {
         
         return boost::algorithm::hex(torrentHandle.info_hash().to_string());
     } catch (const std::exception & except) {
-        
+        cout << "FAILED_TO_ADD_MAGNET: " << except.what() << endl;
+        throw JsonRequestFailedException("FAILED_TO_ADD_MAGNET", except.what());
     }
-    
-    return {};
 }
 
 void TorrentManager::addTorrentsFromDirectory(const string & path) {

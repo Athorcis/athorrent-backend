@@ -32,30 +32,32 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
 
             boost::replace_first(file, "<workdir>", cwd);
 
-            if (boost::filesystem::exists(file)) {
-                std::string hash = m_torrentManager->addTorrentFromFile(file);
-                
-                if (!hash.empty()) {
-                    Value & data = response->getData();
-                    data.SetObject();
-                    
-                    data.AddMember("hash", Value(hash, allocator).Move(), allocator);
-                    response->setStatus("success");
-                }
+            if (!boost::filesystem::exists(file)) {
+                throw JsonRequestFailedException("TORRENT_FILE_NOT_FOUND");
             }
-        }
-    } else if (action == "addTorrentFromMagnet") {
-        if (request->hasParameter("magnet")) {
-            std::string magnet = request->getParameter("magnet");
-            std::string hash = m_torrentManager->addTorrentFromMagnet(magnet);
-            
+
+            std::string hash = m_torrentManager->addTorrentFromFile(file);
+
+            // If hash is empty then the torrent was already there
             if (!hash.empty()) {
                 Value & data = response->getData();
                 data.SetObject();
 
                 data.AddMember("hash", Value(hash, allocator).Move(), allocator);
-                response->setStatus("success");
             }
+
+            response->setStatus("success");
+        }
+    } else if (action == "addTorrentFromMagnet") {
+        if (request->hasParameter("magnet")) {
+            std::string magnet = request->getParameter("magnet");
+            std::string hash = m_torrentManager->addTorrentFromMagnet(magnet);
+
+            Value & data = response->getData();
+            data.SetObject();
+
+            data.AddMember("hash", Value(hash, allocator).Move(), allocator);
+            response->setStatus("success");
         }
     } else if (action == "pauseTorrent") {
         if (request->hasParameter("hash")) {
