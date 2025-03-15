@@ -158,7 +158,7 @@ bool TorrentManager::removeTorrent(const string & hash) {
     return true;
 }
 
-string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) {
+string TorrentManager::addTorrentFromFile(const string & path, bool resumeData, bool * added) {
     cout << "loadTorrentFromFile " << path << endl;
     lt::error_code errorCode;
     auto * torrentInfo = new lt::torrent_info(path, errorCode);
@@ -169,42 +169,49 @@ string TorrentManager::addTorrentFromFile(const string & path, bool resumeData) 
     }
 
     lt::sha1_hash hash = torrentInfo->info_hash();
-
     string hex = boost::algorithm::hex(hash.to_string());
+
+    if (hasTorrent(hash)) {
+        delete torrentInfo;
+
+        if (added) {
+            *added = false;
+        }
+
+        return hex;
+    }
+
     bool resumeDataLoaded = false;
 
-    if (!hasTorrent(hash)) {
-        if (resumeData) {
-            lt::add_torrent_params parameters = m_resumeDataManager->loadResumeData(hex, resumeDataLoaded);
+    if (resumeData) {
+        lt::add_torrent_params parameters = m_resumeDataManager->loadResumeData(hex, resumeDataLoaded);
 
-            if (resumeDataLoaded) {
-                m_session.async_add_torrent(std::move(parameters));
-            }
-        }
-
-        if (!resumeDataLoaded) {
-            if (!fs::exists(m_torrentsPath + "/" + hex + ".torrent")) {
-                fs::copy_file(path, m_torrentsPath + "/" + hex + ".torrent");
-            }
-
-            lt::add_torrent_params parameters;
-
-            parameters.ti = std::shared_ptr<lt::torrent_info>(torrentInfo);
-            parameters.save_path = m_filesPath;
-
+        if (resumeDataLoaded) {
             m_session.async_add_torrent(std::move(parameters));
         }
-
-        
-        return hex;
-    } else {
-        delete torrentInfo;
     }
-    
-    return {};
+
+    if (!resumeDataLoaded) {
+        if (!fs::exists(m_torrentsPath + "/" + hex + ".torrent")) {
+            fs::copy_file(path, m_torrentsPath + "/" + hex + ".torrent");
+        }
+
+        lt::add_torrent_params parameters;
+
+        parameters.ti = std::shared_ptr<lt::torrent_info>(torrentInfo);
+        parameters.save_path = m_filesPath;
+
+        m_session.async_add_torrent(std::move(parameters));
+    }
+
+    if (added) {
+        *added = true;
+    }
+
+    return hex;
 }
 
-string TorrentManager::addTorrentFromMagnet(const string & uri) {
+string TorrentManager::addTorrentFromMagnet(const string & uri, bool * added) {
     cout << "loadTorrentFromMagnet " << uri << endl;
 
     lt::error_code errorCode;
@@ -215,13 +222,29 @@ string TorrentManager::addTorrentFromMagnet(const string & uri) {
         throw JsonRequestFailedException("INVALID_MAGNET_URI", errorCode.message());
     }
 
+    lt::sha1_hash hash = parameters.info_hashes.v1;
+    string hex = boost::algorithm::hex(hash.to_string());
+
+    if (hasTorrent(hash)) {
+
+        if (added) {
+            *added = false;
+        }
+
+        return hex;
+    }
+
     parameters.save_path = m_filesPath;
     parameters.flags |= lt::torrent_flags::duplicate_is_error;
     
     try {
         lt::torrent_handle torrentHandle = m_session.add_torrent(parameters, errorCode);
-        
-        return boost::algorithm::hex(torrentHandle.info_hash().to_string());
+
+        if (added) {
+            *added = true;
+        }
+
+        return hex;
     } catch (const std::exception & except) {
         cout << "FAILED_TO_ADD_MAGNET: " << except.what() << endl;
         throw JsonRequestFailedException("FAILED_TO_ADD_MAGNET", except.what());

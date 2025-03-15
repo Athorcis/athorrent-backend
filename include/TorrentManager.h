@@ -37,10 +37,10 @@ class TorrentManager
 
         bool removeTorrent(const std::string & hash);
 
-        std::string addTorrentFromFile(const std::string & path, bool resumeData = false);
+        std::string addTorrentFromFile(const std::string & path, bool resumeData, bool * added = nullptr);
         void addTorrentsFromDirectory(const std::string & path);
 
-        std::string addTorrentFromMagnet(const std::string & uri);
+        std::string addTorrentFromMagnet(const std::string & uri, bool * added = nullptr);
 
     private:
         std::string m_torrentsPath = "cache/torrents";

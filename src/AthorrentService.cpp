@@ -36,27 +36,29 @@ JsonResponse * AthorrentService::handleRequest(const JsonRequest * request) {
                 throw JsonRequestFailedException("TORRENT_FILE_NOT_FOUND");
             }
 
-            std::string hash = m_torrentManager->addTorrentFromFile(file);
-
-            // If hash is empty then the torrent was already there
-            if (!hash.empty()) {
-                Value & data = response->getData();
-                data.SetObject();
-
-                data.AddMember("hash", Value(hash, allocator).Move(), allocator);
-            }
-
-            response->setStatus("success");
-        }
-    } else if (action == "addTorrentFromMagnet") {
-        if (request->hasParameter("magnet")) {
-            std::string magnet = request->getParameter("magnet");
-            std::string hash = m_torrentManager->addTorrentFromMagnet(magnet);
+            bool added;
+            std::string hash = m_torrentManager->addTorrentFromFile(file, false, &added);
 
             Value & data = response->getData();
             data.SetObject();
 
             data.AddMember("hash", Value(hash, allocator).Move(), allocator);
+            data.AddMember("added", added, allocator);
+            response->setStatus("success");
+        }
+    }
+    else if (action == "addTorrentFromMagnet") {
+        if (request->hasParameter("magnet")) {
+            std::string magnet = request->getParameter("magnet");
+            bool added;
+            std::string hash = m_torrentManager->addTorrentFromMagnet(magnet, &added);
+
+            Value & data = response->getData();
+            data.SetObject();
+
+            data.AddMember("hash", Value(hash, allocator).Move(), allocator);
+            data.AddMember("added", added, allocator);
+
             response->setStatus("success");
         }
     } else if (action == "pauseTorrent") {
