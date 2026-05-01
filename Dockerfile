@@ -1,6 +1,6 @@
-ARG LIBTORRENT_VERSION=2.0.11
+ARG LIBTORRENT_VERSION=2.0.12
 
-FROM debian:12.9-slim AS base
+FROM debian:12.13-slim AS base
 
 FROM base AS builder
 
