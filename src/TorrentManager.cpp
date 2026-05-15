@@ -42,6 +42,7 @@ TorrentManager::TorrentManager(const string & port)
     settings.set_bool(lt::settings_pack::enable_upnp, false);
     settings.set_bool(lt::settings_pack::enable_natpmp, false);
     settings.set_str(lt::settings_pack::listen_interfaces, std::string("0.0.0.0:") + port + ",[::]:" + port);
+    settings.set_str(lt::settings_pack::user_agent, "qBittorrent/5.2.0");
 
     m_session.apply_settings(settings);
 
